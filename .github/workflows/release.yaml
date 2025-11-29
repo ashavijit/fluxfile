@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write 
+
 jobs:
   build:
     name: Build Flux for all platforms
@@ -30,6 +33,5 @@ jobs:
       - name: Upload Release Files
         uses: softprops/action-gh-release@v1
         with:
+          token: ${{ secrets.TOKENV1 }}
           files: dist/**
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKENV1 }}
