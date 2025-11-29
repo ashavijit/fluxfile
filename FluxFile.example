@@ -1,0 +1,62 @@
+var PROJECT = flux
+var VERSION = $(shell "git describe --tags --always")
+
+task build:
+    deps: fmt, lint
+    env:
+        GO111MODULE = on
+    run:
+        go build -o dist/${PROJECT} ./cmd/flux
+
+task fmt:
+    run:
+        go fmt ./...
+
+task lint:
+    run:
+        golangci-lint run
+
+task dev:
+    watch: **/*.go
+    run:
+        go run ./cmd/flux
+
+task build-all:
+    matrix:
+        os: linux, darwin, windows
+        arch: amd64, arm64
+    run:
+        GOOS=${os} GOARCH=${arch} go build -o dist/${PROJECT}-${os}-${arch} ./cmd/flux
+
+task docker-build:
+    docker: true
+    run:
+        docker build -t ${PROJECT}:${VERSION} .
+
+task deploy:
+    remote: root@12.34.56.78
+    deps: docker-build
+    run:
+        docker pull ${PROJECT}:${VERSION}
+        docker compose up -d
+
+task test:
+    run:
+        go test ./... -v
+
+task clean:
+    run:
+        rm -rf dist/
+        rm -rf .flux/
+
+profile dev:
+    env:
+        MODE = dev
+        LOG = debug
+
+profile prod:
+    env:
+        MODE = production
+        LOG = error
+
+include "plugins/docker.flux"
