@@ -20,13 +20,13 @@ Modern task runner and build automation tool with a clean, minimal syntax.
 ### Linux / macOS
 
 ```bash
-curl -fsSL https://get.flux.sh/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/ashavijit/fluxfile/main/scripts/install.sh | sh
 ```
 
 ### Windows
 
 ```powershell
-iwr -useb https://get.flux.sh/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/ashavijit/fluxfile/main/scripts/install.ps1 | iex
 ```
 
 ### From Source
