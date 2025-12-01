@@ -9,48 +9,37 @@ import (
 	"github.com/ashavijit/fluxfile/internal/executor"
 )
 
-// TaskStatus tracks the state of a task in the TUI
 type TaskStatus struct {
 	Name     string
-	Status   string // pending, running, success, failed
+	Status   string
 	Duration time.Duration
 	Error    error
 	mu       sync.RWMutex
 }
 
-// TUIState holds the global state of the TUI
 type TUIState struct {
 	Tasks  map[string]*TaskStatus
-	Output []string
 	mu     sync.RWMutex
 }
 
 func runInteractiveTUI(exec *executor.Executor, taskName string, profile string, useCache bool) {
-	// Hide cursor
-	fmt.Print("\033[?25l")
-	defer fmt.Print("\033[?25h") // Show cursor on exit
+	fmt.Print("\033[?25l") // Hide cursor
+	defer fmt.Print("\033[?25h")
 
 	state := &TUIState{
-		Tasks:  make(map[string]*TaskStatus),
-		Output: []string{},
+		Tasks: make(map[string]*TaskStatus),
 	}
 
-	// Initialize tasks
 	tasks := exec.ListTasks()
 	for _, name := range tasks {
-		state.Tasks[name] = &TaskStatus{
-			Name:   name,
-			Status: "pending",
-		}
+		state.Tasks[name] = &TaskStatus{Name: name, Status: "pending"}
 	}
 
-	// Clear screen once at start
-	fmt.Print("\033[2J\033[H")
+	fmt.Print("\033[2J\033[H") // Clear screen
 
-	// Start update loop
 	done := make(chan bool)
 	go func() {
-		ticker := time.NewTicker(100 * time.Millisecond)
+		ticker := time.NewTicker(50 * time.Millisecond)
 		defer ticker.Stop()
 		for {
 			select {
@@ -62,13 +51,7 @@ func runInteractiveTUI(exec *executor.Executor, taskName string, profile string,
 		}
 	}()
 
-	// Execute task
-	// Note: In a real TUI, we'd want to capture exec output and feed it to state.Output
-	// For now, we'll let it run. If exec prints to stdout, it will mess up the TUI.
-	// We assume exec is silent or we need to modify exec to be silent/capture output.
 	start := time.Now()
-	
-	// Update status to running for the main task
 	if t, ok := state.Tasks[taskName]; ok {
 		t.mu.Lock()
 		t.Status = "running"
@@ -76,8 +59,7 @@ func runInteractiveTUI(exec *executor.Executor, taskName string, profile string,
 	}
 
 	err := exec.Execute(taskName, profile, useCache)
-	
-	// Update final status
+
 	if t, ok := state.Tasks[taskName]; ok {
 		t.mu.Lock()
 		if err != nil {
@@ -91,75 +73,53 @@ func runInteractiveTUI(exec *executor.Executor, taskName string, profile string,
 	}
 
 	done <- true
-	state.render() // Final render
-	
-	// Move cursor below the table
-	fmt.Printf("\033[%dB", len(state.Tasks)+10)
+	state.render()
+	fmt.Printf("\033[%dB", len(state.Tasks)+8) // Move cursor to bottom
 }
 
 func (s *TUIState) render() {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	// Move to top-left
-	fmt.Print("\033[H")
+	fmt.Print("\033[H") // Move to top-left
 
 	fmt.Printf("\n%s╔════════════════════════════════════════════════════════════════╗%s\n", colorCyan, colorReset)
 	fmt.Printf("%s║                    FLUX INTERACTIVE MODE                       ║%s\n", colorCyan, colorReset)
 	fmt.Printf("%s╚════════════════════════════════════════════════════════════════╝%s\n\n", colorCyan, colorReset)
 
-	maxNameLen := 15
-	sortedNames := make([]string, 0, len(s.Tasks))
+	maxLen := 15
+	sorted := make([]string, 0, len(s.Tasks))
 	for name := range s.Tasks {
-		if len(name) > maxNameLen {
-			maxNameLen = len(name)
+		if len(name) > maxLen {
+			maxLen = len(name)
 		}
-		sortedNames = append(sortedNames, name)
+		sorted = append(sorted, name)
 	}
 
-	fmt.Printf("  %s%-*s  %-12s  %s%s\n", colorYellow, maxNameLen, "TASK", "STATUS", "DURATION", colorReset)
-	fmt.Printf("  %s%s%s\n", colorGray, strings.Repeat("─", maxNameLen+30), colorReset)
+	fmt.Printf("  %s%-*s  %-10s  %s%s\n", colorYellow, maxLen, "TASK", "STATUS", "TIME", colorReset)
+	fmt.Printf("  %s%s%s\n", colorGray, strings.Repeat("─", maxLen+25), colorReset)
 
-	for _, name := range sortedNames {
-		task := s.Tasks[name]
-		task.mu.RLock()
-		statusIcon, statusColor := getStatusDisplay(task.Status)
-		durationStr := formatDuration(task.Duration)
+	for _, name := range sorted {
+		t := s.Tasks[name]
+		t.mu.RLock()
 		
-		fmt.Printf("  %s%-*s%s  %s%-12s%s  %s%s%s\033[K\n",
-			colorGreen, maxNameLen, task.Name, colorReset,
-			statusColor, statusIcon, colorReset,
-			colorGray, durationStr, colorReset)
-		task.mu.RUnlock()
-	}
-	
-	// Clear remaining lines if any (optional, for cleaner look)
-	fmt.Print("\033[J")
-}
+		icon, col := "⏸", colorGray
+		if t.Status == "running" { icon, col = "🔄", colorYellow }
+		if t.Status == "success" { icon, col = "✓", colorGreen }
+		if t.Status == "failed"  { icon, col = "✗", colorRed }
 
-func getStatusDisplay(status string) (string, string) {
-	switch status {
-	case "running":
-		return "🔄 Running", colorYellow
-	case "success":
-		return "✓ Success", colorGreen
-	case "failed":
-		return "✗ Failed", colorRed
-	default:
-		return "⏸ Pending", colorGray
-	}
-}
+		dur := "-"
+		if t.Duration > 0 {
+			dur = fmt.Sprintf("%.1fs", t.Duration.Seconds())
+		}
 
-func formatDuration(d time.Duration) string {
-	if d == 0 {
-		return "-"
+		fmt.Printf("  %s%-*s%s  %s%-10s%s  %s%s%s\033[K\n",
+			colorGreen, maxLen, t.Name, colorReset,
+			col, icon+" "+t.Status, colorReset,
+			colorGray, dur, colorReset)
+		t.mu.RUnlock()
 	}
-	if d < time.Second {
-		return fmt.Sprintf("%dms", d.Milliseconds())
-	}
-	return fmt.Sprintf("%.1fs", d.Seconds())
-}
-
+}	
 const (
 	colorRed    = "\033[31m"
 	colorGreen  = "\033[32m"
