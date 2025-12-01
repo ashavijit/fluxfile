@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/ashavijit/fluxfile/internal/config"
 	"github.com/ashavijit/fluxfile/internal/executor"
@@ -15,12 +16,22 @@ var (
 	version = "1.0.0"
 )
 
+const (
+	colorReset  = "\033[0m"
+	colorCyan   = "\033[36m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorBlue   = "\033[34m"
+	colorGray   = "\033[90m"
+)
+
 func main() {
 	log := logger.New()
 
 	taskName := flag.String("t", "", "Task to execute")
 	profile := flag.String("p", "", "Profile to apply")
 	listTasks := flag.Bool("l", false, "List all tasks")
+	showTasks := flag.Bool("show", false, "Show all tasks with enhanced UI")
 	watch := flag.Bool("w", false, "Watch mode")
 	noCache := flag.Bool("no-cache", false, "Disable caching")
 	fluxFilePath := flag.String("f", "", "Path to FluxFile")
@@ -54,6 +65,11 @@ func main() {
 	exec, err := executor.New(fluxFile, cacheDir)
 	if err != nil {
 		log.Fatal(err.Error())
+	}
+
+	if *showTasks || (len(flag.Args()) > 0 && flag.Args()[0] == "show") {
+		showTasksEnhanced(exec)
+		return
 	}
 
 	if *listTasks {
