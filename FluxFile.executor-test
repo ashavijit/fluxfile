@@ -1,0 +1,66 @@
+var MODE = dev
+
+task phase1-conditional:
+    desc: Test conditional execution
+    if: MODE == dev
+    run:
+        echo "Running in dev mode!"
+
+task phase1-parallel:
+    desc: Test parallel dependencies
+    deps: dep1, dep2
+    parallel: true
+    run:
+        echo "All deps completed"
+
+task dep1:
+    run:
+        echo "Dependency 1"
+
+task dep2:
+    run:
+        echo "Dependency 2"
+
+task phase1-caching:
+    desc: Test enhanced caching with inputs/outputs
+    cache: true
+    inputs:
+        *.go
+        go.mod
+    outputs:
+        test-output.txt
+    run:
+        echo "Building cached output"
+        echo "cached" > test-output.txt
+
+task phase2-retry:
+    desc: Test retry logic
+    retries: 3
+    retry_delay: 1s
+    run:
+        echo "Attempting task (may retry)"
+
+task phase2-timeout:
+    desc: Test timeout
+    timeout: 5s
+    run:
+        echo "Quick task within timeout"
+
+task phase2-preconditions:
+    desc: Test preconditions
+    pre:
+        command: go
+        env: PATH
+    run:
+        echo "Preconditions met"
+
+task phase2-profile:
+    desc: Test task-level profile override
+    profile_task: prod
+    run:
+        echo "Using prod profile"
+
+profile prod:
+    env:
+        MODE = production
+        LOG_LEVEL = error

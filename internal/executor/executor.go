@@ -71,13 +71,19 @@ func (e *Executor) Execute(taskName string, profile string, useCache bool) error
 		return err
 	}
 
-	for _, dep := range deps {
-		depTask, err := e.graph.GetTask(dep)
-		if err != nil {
+	if task.Parallel && len(deps) > 0 {
+		if err := e.executeDependenciesParallel(deps, useCache); err != nil {
 			return err
 		}
-		if err := e.executeTask(depTask, useCache); err != nil {
-			return err
+	} else {
+		for _, dep := range deps {
+			depTask, err := e.graph.GetTask(dep)
+			if err != nil {
+				return err
+			}
+			if err := e.executeTask(depTask, useCache); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -89,12 +95,45 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 	start := time.Now()
 
 	taskVars := vars.MergeVars(e.vars, task.Env)
-	expandedRun := vars.ExpandSlice(task.Run, taskVars)
 
-	if useCache && len(task.Watch) > 0 {
-		inputHash, err := cache.HashFiles(task.Watch)
+	if task.Profile != "" {
+		e.applyProfile(task.Profile)
+		taskVars = vars.MergeVars(e.vars, task.Env)
+	}
+
+	if len(task.Secrets) > 0 {
+		if err := e.loadSecrets(task.Secrets, taskVars); err != nil {
+			return err
+		}
+	}
+
+	if task.If != "" {
+		shouldRun, err := e.evaluateCondition(task.If, taskVars)
+		if err != nil {
+			return fmt.Errorf("condition evaluation failed: %w", err)
+		}
+		if !shouldRun {
+			e.logger.Info(fmt.Sprintf("Skipping task %s (condition not  met)", task.Name))
+			return nil
+		}
+	}
+
+	if len(task.Pre) > 0 {
+		if err := e.checkPreconditions(task.Pre); err != nil {
+			return err
+		}
+	}
+
+	cached, inputHash := e.checkEnhancedCache(task, useCache)
+	if cached {
+		e.logger.TaskCached(task.Name)
+		return nil
+	}
+
+	if !cached && useCache && len(task.Watch) > 0 {
+		hash, err := cache.HashFiles(task.Watch)
 		if err == nil {
-			if entry, ok := e.cache.Get(task.Name, inputHash); ok && entry.Success {
+			if entry, ok := e.cache.Get(task.Name, hash); ok && entry.Success {
 				e.logger.TaskCached(task.Name)
 				return nil
 			}
@@ -104,26 +143,43 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 	success := true
 	var execErr error
 
-	for _, cmd := range expandedRun {
-		if err := e.runCommand(cmd, taskVars); err != nil {
-			success = false
-			execErr = err
-			break
+	if task.Timeout != "" || task.Retries > 0 {
+		execErr = e.executeWithTimeout(task, taskVars)
+		success = (execErr == nil)
+	} else {
+		expandedRun := vars.ExpandSlice(task.Run, taskVars)
+		for _, cmd := range expandedRun {
+			if err := e.runCommand(cmd, taskVars); err != nil {
+				success = false
+				execErr = err
+				break
+			}
 		}
 	}
 
 	duration := time.Since(start)
 
-	if useCache && len(task.Watch) > 0 {
-		inputHash, _ := cache.HashFiles(task.Watch)
-		entry := &cache.CacheEntry{
-			TaskName:  task.Name,
-			InputHash: inputHash,
-			Success:   success,
-			Duration:  duration,
-			Timestamp: time.Now(),
+	if success && useCache {
+		if task.Cache && len(task.Inputs) > 0 && inputHash != "" {
+			entry := &cache.CacheEntry{
+				TaskName:  task.Name,
+				InputHash: inputHash,
+				Success:   success,
+				Duration:  duration,
+				Timestamp: time.Now(),
+			}
+			e.cache.Set(entry)
+		} else if len(task.Watch) > 0 {
+			hash, _ := cache.HashFiles(task.Watch)
+			entry := &cache.CacheEntry{
+				TaskName:  task.Name,
+				InputHash: hash,
+				Success:   success,
+				Duration:  duration,
+				Timestamp: time.Now(),
+			}
+			e.cache.Set(entry)
 		}
-		e.cache.Set(entry)
 	}
 
 	if success {
