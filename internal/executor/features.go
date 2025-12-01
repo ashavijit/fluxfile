@@ -17,18 +17,38 @@ func (e *Executor) evaluateCondition(condition string, vars map[string]string) (
 		return true, nil
 	}
 
-	parts := strings.Fields(condition)
-	if len(parts) < 3 {
-		return false, fmt.Errorf("invalid condition: %s", condition)
+	condition = strings.TrimSpace(condition)
+	condition = strings.ReplaceAll(condition, " = = ", "==")
+	condition = strings.ReplaceAll(condition, " ! = ", "!=")
+	condition = strings.ReplaceAll(condition, " > = ", ">=")
+	condition = strings.ReplaceAll(condition, " < = ", "<=")
+
+	operators := []string{"==", "!=", ">=", "<=", ">", "<"}
+	var operator string
+	var leftPart, rightPart string
+
+	for _, op := range operators {
+		if strings.Contains(condition, op) {
+			parts := strings.SplitN(condition, op, 2)
+			if len(parts) == 2 {
+				operator = op
+				leftPart = strings.TrimSpace(parts[0])
+				rightPart = strings.TrimSpace(parts[1])
+				break
+			}
+		}
 	}
 
-	left := vars[parts[0]]
+	if operator == "" {
+		return false, fmt.Errorf("no valid operator found in condition: %s", condition)
+	}
+
+	left := vars[leftPart]
 	if left == "" {
-		left = parts[0]
+		left = leftPart
 	}
 
-	operator := parts[1]
-	right := strings.Trim(strings.Join(parts[2:], " "), "\"")
+	right := strings.Trim(rightPart, "\"'")
 
 	switch operator {
 	case "==":
