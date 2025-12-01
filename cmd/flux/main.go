@@ -35,6 +35,9 @@ func main() {
 	noCache := flag.Bool("no-cache", false, "Disable caching")
 	fluxFilePath := flag.String("f", "", "Path to FluxFile")
 	showVersion := flag.Bool("v", false, "Show version")
+	generateLock := flag.Bool("lock", false, "Generate dependency lock file")
+	checkLock := flag.Bool("check-lock", false, "Verify lock file")
+	runTUI := flag.Bool("tui", false, "Run interactive TUI mode")
 
 	flag.Parse()
 
@@ -64,6 +67,10 @@ func main() {
 	exec, err := executor.New(fluxFile, cacheDir)
 	if err != nil {
 		log.Fatal(err.Error())
+	}
+
+	if handleLockCommands(*generateLock, *checkLock, *fluxFilePath) {
+		return
 	}
 
 	if *showTasks || (len(flag.Args()) > 0 && flag.Args()[0] == "show") {
@@ -96,6 +103,11 @@ func main() {
 	task, err := exec.GetTaskInfo(*taskName)
 	if err != nil {
 		log.Fatal(err.Error())
+	}
+
+	if *runTUI {
+		runInteractiveTUI(exec, *taskName, *profile, !*noCache)
+		return
 	}
 
 	if *watch && len(task.Watch) > 0 {
