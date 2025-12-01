@@ -22,6 +22,7 @@ const (
 	colorYellow = "\033[33m"
 	colorBlue   = "\033[34m"
 	colorGray   = "\033[90m"
+	colorRed    = "\033[31m"
 )
 
 func main() {
