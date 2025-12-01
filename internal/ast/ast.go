@@ -8,21 +8,32 @@ type FluxFile struct {
 }
 
 type Task struct {
-	Name   string
-	Desc   string   // Phase 1: Task description for help
-	Deps   []string
-	Parallel bool   // Phase 1: Enable parallel dependency execution
-	If     string   // Phase 1: Conditional expression
-	Run    []string
-	Env    map[string]string
-	Watch  []string
-	WatchIgnore []string // Phase 1: Ignore patterns for watch
-	Matrix *Matrix
-	Cache  bool     // Phase 1: Explicit cache flag
-	Inputs []string // Phase 1: Input files for caching
-	Outputs []string // Phase 1: Output files for caching
-	Docker bool
-	Remote string
+	Name        string
+	Desc        string
+	Deps        []string
+	Parallel    bool
+	If          string
+	Run         []string
+	Env         map[string]string
+	Watch       []string
+	WatchIgnore []string
+	Matrix      *Matrix
+	Cache       bool
+	Inputs      []string
+	Outputs     []string
+	Docker      bool
+	Remote      string
+	Profile     string
+	Secrets     []string
+	Pre         []Precondition
+	Retries     int
+	RetryDelay  string
+	Timeout     string
+}
+
+type Precondition struct {
+	Type  string
+	Value string
 }
 
 type Profile struct {
@@ -85,6 +96,12 @@ func NewTask(name string) Task {
 		Outputs:     []string{},
 		Docker:      false,
 		Remote:      "",
+		Profile:     "",
+		Secrets:     []string{},
+		Pre:         []Precondition{},
+		Retries:     0,
+		RetryDelay:  "",
+		Timeout:     "",
 	}
 }
 

@@ -40,33 +40,45 @@ const (
 	INPUTS
 	OUTPUTS
 	IGNORE
+	PROFILE_TASK
+	SECRETS
+	PRE
+	RETRIES
+	RETRY_DELAY
+	TIMEOUT
 
 	SHELL
 	DOLLAR
 )
 
 var keywords = map[string]TokenType{
-	"var":     VAR,
-	"task":    TASK,
-	"profile": PROFILE,
-	"include": INCLUDE,
-	"deps":    DEPS,
-	"run":     RUN,
-	"env":     ENV,
-	"watch":   WATCH,
-	"matrix":  MATRIX,
-	"docker":  DOCKER,
-	"remote":  REMOTE,
-	"desc":    DESC,
-	"parallel": PARALLEL,
-	"if":      IF,
-	"cache":   CACHE,
-	"inputs":  INPUTS,
-	"outputs": OUTPUTS,
-	"ignore":  IGNORE,
-	"shell":   SHELL,
-	"true":    IDENT,
-	"false":   IDENT,
+	"var":         VAR,
+	"task":        TASK,
+	"profile":     PROFILE,
+	"include":     INCLUDE,
+	"deps":        DEPS,
+	"run":         RUN,
+	"env":         ENV,
+	"watch":       WATCH,
+	"matrix":      MATRIX,
+	"docker":      DOCKER,
+	"remote":      REMOTE,
+	"desc":        DESC,
+	"parallel":    PARALLEL,
+	"if":          IF,
+	"cache":       CACHE,
+	"inputs":      INPUTS,
+	"outputs":     OUTPUTS,
+	"ignore":      IGNORE,
+	"profile_task": PROFILE_TASK,
+	"secrets":     SECRETS,
+	"pre":         PRE,
+	"retries":     RETRIES,
+	"retry_delay": RETRY_DELAY,
+	"timeout":     TIMEOUT,
+	"shell":       SHELL,
+	"true":        IDENT,
+	"false":       IDENT,
 }
 
 type Token struct {
@@ -149,6 +161,18 @@ func (t TokenType) String() string {
 		return "OUTPUTS"
 	case IGNORE:
 		return "IGNORE"
+	case PROFILE_TASK:
+		return "PROFILE_TASK"
+	case SECRETS:
+		return "SECRETS"
+	case PRE:
+		return "PRE"
+	case RETRIES:
+		return "RETRIES"
+	case RETRY_DELAY:
+		return "RETRY_DELAY"
+	case TIMEOUT:
+		return "TIMEOUT"
 	case SHELL:
 		return "SHELL"
 	case DOLLAR:
