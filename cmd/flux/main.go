@@ -60,7 +60,12 @@ func main() {
 		tasks := exec.ListTasks()
 		fmt.Println("Available tasks:")
 		for _, task := range tasks {
-			fmt.Printf("  - %s\n", task)
+			taskInfo, _ := exec.GetTaskInfo(task)
+			if taskInfo != nil && taskInfo.Desc != "" {
+				fmt.Printf("  %-20s %s\n", task, taskInfo.Desc)
+			} else {
+				fmt.Printf("  - %s\n", task)
+			}
 		}
 		return
 	}

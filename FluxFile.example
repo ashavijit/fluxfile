@@ -1,27 +1,54 @@
 var PROJECT = flux
 var VERSION = $(shell "git describe --tags --always")
+var MODE = dev
 
 task build:
+    desc: Build the Go binary
     deps: fmt, lint
+    cache: true
+    inputs:
+        cmd/**/*.go
+        internal/**/*.go
+        go.mod
+    outputs:
+        dist/${PROJECT}
     env:
         GO111MODULE = on
     run:
         go build -o dist/${PROJECT} ./cmd/flux
 
 task fmt:
+    desc: Format Go code
     run:
         go fmt ./...
 
 task lint:
+    desc: Run Go linter
     run:
         golangci-lint run
 
+task test:
+    desc: Run all tests
+    run:
+        go test ./... -v
+
+task ci:
+    desc: Run CI tasks in parallel
+    parallel: true
+    deps: test, lint, build
+
 task dev:
+    desc: Watch for changes and rebuild
     watch: **/*.go
+    ignore:
+        vendor/**
+        **/*_test.go
+        .git/**
     run:
         go run ./cmd/flux
 
 task build-all:
+    desc: Cross-compile for multiple platforms
     matrix:
         os: linux, darwin, windows
         arch: amd64, arm64
@@ -29,22 +56,29 @@ task build-all:
         GOOS=${os} GOARCH=${arch} go build -o dist/${PROJECT}-${os}-${arch} ./cmd/flux
 
 task docker-build:
+    desc: Build Docker image
     docker: true
     run:
         docker build -t ${PROJECT}:${VERSION} .
 
 task deploy:
-    remote: root@12.34.56.78
+    desc: Deploy to production (only in prod mode)
+    if: MODE == prod
+    remote: "root@server.example.com"
     deps: docker-build
     run:
         docker pull ${PROJECT}:${VERSION}
         docker compose up -d
 
-task test:
+task deploy-dev:
+    desc: Deploy to development environment
+    if: MODE == dev
     run:
-        go test ./... -v
+        echo "Deploying to dev environment..."
+        docker compose -f docker-compose.dev.yml up -d
 
 task clean:
+    desc: Remove build artifacts
     run:
         rm -rf dist/
         rm -rf .flux/

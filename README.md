@@ -4,10 +4,14 @@ Modern task runner and build automation tool with a clean, minimal syntax.
 
 ## Features
 
+- **Task Descriptions** - Add descriptions to tasks for better documentation
 - Clean, indentation-based DSL
 - Dependency graph resolution with cycle detection
 - Task result caching based on file hashes
-- File watching for automatic re-execution
+- **Enhanced Caching** - Input/output tracking for incremental builds
+- File watching for automatic re-execution with ignore patterns
+- **Conditional Execution** - Run tasks based on environment conditions
+- **Parallel Task Execution** - Run dependencies concurrently
 - Matrix builds for multi-platform compilation
 - Docker container execution
 - Remote execution over SSH
@@ -78,13 +82,24 @@ var VERSION = $(shell "git describe --tags")
 
 ```
 task name:
+    desc: Task description shown in help
     deps: dep1, dep2
+    parallel: true
+    if: MODE == prod
     env:
         KEY = value
     run:
         command1
         command2
     watch: **/*.go
+    ignore:
+        node_modules/**
+        .git/**
+    cache: true
+    inputs:
+        src/**/*.go
+    outputs:
+        dist/binary
     matrix:
         os: linux, darwin
         arch: amd64, arm64

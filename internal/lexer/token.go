@@ -33,6 +33,13 @@ const (
 	MATRIX
 	DOCKER
 	REMOTE
+	DESC
+	PARALLEL
+	IF
+	CACHE
+	INPUTS
+	OUTPUTS
+	IGNORE
 
 	SHELL
 	DOLLAR
@@ -50,6 +57,13 @@ var keywords = map[string]TokenType{
 	"matrix":  MATRIX,
 	"docker":  DOCKER,
 	"remote":  REMOTE,
+	"desc":    DESC,
+	"parallel": PARALLEL,
+	"if":      IF,
+	"cache":   CACHE,
+	"inputs":  INPUTS,
+	"outputs": OUTPUTS,
+	"ignore":  IGNORE,
 	"shell":   SHELL,
 	"true":    IDENT,
 	"false":   IDENT,
@@ -121,6 +135,20 @@ func (t TokenType) String() string {
 		return "DOCKER"
 	case REMOTE:
 		return "REMOTE"
+	case DESC:
+		return "DESC"
+	case PARALLEL:
+		return "PARALLEL"
+	case IF:
+		return "IF"
+	case CACHE:
+		return "CACHE"
+	case INPUTS:
+		return "INPUTS"
+	case OUTPUTS:
+		return "OUTPUTS"
+	case IGNORE:
+		return "IGNORE"
 	case SHELL:
 		return "SHELL"
 	case DOLLAR:

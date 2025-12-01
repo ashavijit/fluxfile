@@ -9,11 +9,18 @@ type FluxFile struct {
 
 type Task struct {
 	Name   string
+	Desc   string   // Phase 1: Task description for help
 	Deps   []string
+	Parallel bool   // Phase 1: Enable parallel dependency execution
+	If     string   // Phase 1: Conditional expression
 	Run    []string
 	Env    map[string]string
 	Watch  []string
+	WatchIgnore []string // Phase 1: Ignore patterns for watch
 	Matrix *Matrix
+	Cache  bool     // Phase 1: Explicit cache flag
+	Inputs []string // Phase 1: Input files for caching
+	Outputs []string // Phase 1: Output files for caching
 	Docker bool
 	Remote string
 }
@@ -63,14 +70,21 @@ func NewFluxFile() *FluxFile {
 
 func NewTask(name string) Task {
 	return Task{
-		Name:   name,
-		Deps:   []string{},
-		Run:    []string{},
-		Env:    make(map[string]string),
-		Watch:  []string{},
-		Matrix: nil,
-		Docker: false,
-		Remote: "",
+		Name:        name,
+		Desc:        "",
+		Deps:        []string{},
+		Parallel:    false,
+		If:          "",
+		Run:         []string{},
+		Env:         make(map[string]string),
+		Watch:       []string{},
+		WatchIgnore: []string{},
+		Matrix:      nil,
+		Cache:       false,
+		Inputs:      []string{},
+		Outputs:     []string{},
+		Docker:      false,
+		Remote:      "",
 	}
 }
 
