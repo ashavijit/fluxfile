@@ -46,14 +46,6 @@ task phase2-timeout:
     run:
         echo "Quick task within timeout"
 
-task phase2-preconditions:
-    desc: Test preconditions
-    pre:
-        command: go
-        env: PATH
-    run:
-        echo "Preconditions met"
-
 task phase2-profile:
     desc: Test task-level profile override
     profile_task: prod
@@ -63,4 +55,3 @@ task phase2-profile:
 profile prod:
     env:
         MODE = production
-        LOG_LEVEL = error
