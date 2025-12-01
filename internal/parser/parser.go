@@ -238,51 +238,50 @@ func (p *Parser) parseTaskBody(task *ast.Task) {
 			break
 		}
 
-				switch p.currentToken.Type {
-	case lexer.DESC:
-		task.Desc = p.parseDesc()
-	case lexer.DEPS:
-		task.Deps = p.parseDeps()
-	case lexer.PARALLEL:
-		task.Parallel = p.parseParallel()
-	case lexer.IF:
-		task.If = p.parseIf()
-	case lexer.RUN:
-		task.Run = p.parseRun()
-	case lexer.ENV:
-		task.Env = p.parseEnv()
-	case lexer.WATCH:
-		task.Watch = p.parseWatch()
-	case lexer.IGNORE:
-		task.WatchIgnore = p.parseWatchIgnore()
-	case lexer.MATRIX:
-		task.Matrix = p.parseMatrix()
-	case lexer.CACHE:
-		task.Cache = p.parseCache()
-	case lexer.INPUTS:
-		task.Inputs = p.parseInputs()
-	case lexer.OUTPUTS:
-		task.Outputs = p.parseOutputs()
-	case lexer.PROFILE_TASK:
-		task.Profile = p.parseProfileTask()
-	case lexer.SECRETS:
-		task.Secrets = p.parseSecrets()
-	case lexer.PRE:
-		task.Pre = p.parsePre()
-	case lexer.RETRIES:
-		task.Retries = p.parseRetries()
-	case lexer.RETRY_DELAY:
-		task.RetryDelay = p.parseRetryDelay()
-	case lexer.TIMEOUT:
-		task.Timeout = p.parseTimeout()
-	case lexer.DOCKER:
-		task.Docker = p.parseDocker()
-	case lexer.REMOTE:
-		task.Remote = p.parseRemote()
-	default:
-		p.nextToken()
-	}
-
+		switch p.currentToken.Type {
+		case lexer.DESC:
+			task.Desc = p.parseDesc()
+		case lexer.DEPS:
+			task.Deps = p.parseDeps()
+		case lexer.PARALLEL:
+			task.Parallel = p.parseParallel()
+		case lexer.IF:
+			task.If = p.parseIf()
+		case lexer.RUN:
+			task.Run = p.parseRun()
+		case lexer.ENV:
+			task.Env = p.parseEnv()
+		case lexer.WATCH:
+			task.Watch = p.parseWatch()
+		case lexer.IGNORE:
+			task.WatchIgnore = p.parseWatchIgnore()
+		case lexer.MATRIX:
+			task.Matrix = p.parseMatrix()
+		case lexer.CACHE:
+			task.Cache = p.parseCache()
+		case lexer.INPUTS:
+			task.Inputs = p.parseInputs()
+		case lexer.OUTPUTS:
+			task.Outputs = p.parseOutputs()
+		case lexer.PROFILE_TASK:
+			task.Profile = p.parseProfileTask()
+		case lexer.SECRETS:
+			task.Secrets = p.parseSecrets()
+		case lexer.PRE:
+			task.Pre = p.parsePre()
+		case lexer.RETRIES:
+			task.Retries = p.parseRetries()
+		case lexer.RETRY_DELAY:
+			task.RetryDelay = p.parseRetryDelay()
+		case lexer.TIMEOUT:
+			task.Timeout = p.parseTimeout()
+		case lexer.DOCKER:
+			task.Docker = p.parseDocker()
+		case lexer.REMOTE:
+			task.Remote = p.parseRemote()
+		default:
+			p.nextToken()
+		}
 
 	}
 }
@@ -631,5 +630,3 @@ func (p *Parser) parseInclude() string {
 
 	return include
 }
-
-

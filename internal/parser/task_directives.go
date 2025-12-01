@@ -6,7 +6,6 @@ import (
 	"github.com/ashavijit/fluxfile/internal/lexer"
 )
 
-
 func (p *Parser) parseDesc() string {
 	p.nextToken()
 
@@ -71,7 +70,7 @@ func (p *Parser) parseIf() string {
 		} else {
 			condition.WriteString(p.currentToken.Literal)
 		}
-		
+
 		if p.peekToken.Type != lexer.NEWLINE && p.peekToken.Type != lexer.EOF {
 			condition.WriteString(" ")
 		}
