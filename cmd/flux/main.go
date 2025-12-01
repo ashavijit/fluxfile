@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/ashavijit/fluxfile/internal/config"
 	"github.com/ashavijit/fluxfile/internal/executor"
