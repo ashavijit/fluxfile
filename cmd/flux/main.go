@@ -38,6 +38,11 @@ func main() {
 	showVersion := flag.Bool("v", false, "Show version")
 	generateLock := flag.Bool("lock", false, "Generate dependency lock file")
 	checkLock := flag.Bool("check-lock", false, "Verify lock file")
+	lockUpdate := flag.Bool("lock-update", false, "Update specific task in lock file")
+	updateTask := flag.String("task", "", "Task name for --lock-update")
+	lockDiff := flag.Bool("lock-diff", false, "Show detailed diff between lock and current state")
+	lockClean := flag.Bool("lock-clean", false, "Remove stale tasks from lock file")
+	jsonOutput := flag.Bool("json", false, "Output in JSON format")
 	runTUI := flag.Bool("tui", false, "Run interactive TUI mode")
 
 	flag.Parse()
@@ -70,7 +75,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	if handleLockCommands(*generateLock, *checkLock, *fluxFilePath) {
+	if handleLockCommands(*generateLock, *checkLock, *lockUpdate, *lockDiff, *lockClean, *updateTask, *fluxFilePath, *jsonOutput) {
 		return
 	}
 

@@ -7,3 +7,4 @@ coverage.out
 *.so
 *.dylib
 .DS_Store
+COMMANDS.md

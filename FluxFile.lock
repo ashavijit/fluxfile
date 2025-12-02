@@ -1,11 +1,14 @@
 {
-  "version": "1.0",
-  "generated": "2025-12-01T13:17:37.9277833+05:30",
-  "tasks": {
-    "build": {
-      "inputs": {},
-      "outputs": {},
-      "hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
-    }
-  }
+  "version": "2.0",
+  "generated": "2025-12-02T16:43:13.9431649+05:30",
+  "metadata": {
+    "fluxfile_path": "FluxFile",
+    "hostname": "Avijit",
+    "user": "aviji",
+    "go_version": "go1.24.1",
+    "os": "windows",
+    "arch": "amd64"
+  },
+  "fluxfile_hash": "a1aa4309a9d6bc1b6ea9e8e1392d880b27a29e7b9e0b3c6e11b4a973ee7e148a",
+  "tasks": {}
 }

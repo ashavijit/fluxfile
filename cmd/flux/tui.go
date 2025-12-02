@@ -18,8 +18,8 @@ type TaskStatus struct {
 }
 
 type TUIState struct {
-	Tasks  map[string]*TaskStatus
-	mu     sync.RWMutex
+	Tasks map[string]*TaskStatus
+	mu    sync.RWMutex
 }
 
 func runInteractiveTUI(exec *executor.Executor, taskName string, profile string, useCache bool) {
@@ -102,11 +102,17 @@ func (s *TUIState) render() {
 	for _, name := range sorted {
 		t := s.Tasks[name]
 		t.mu.RLock()
-		
+
 		icon, col := "⏸", colorGray
-		if t.Status == "running" { icon, col = "🔄", colorYellow }
-		if t.Status == "success" { icon, col = "✓", colorGreen }
-		if t.Status == "failed"  { icon, col = "✗", colorRed }
+		if t.Status == "running" {
+			icon, col = "🔄", colorYellow
+		}
+		if t.Status == "success" {
+			icon, col = "✓", colorGreen
+		}
+		if t.Status == "failed" {
+			icon, col = "✗", colorRed
+		}
 
 		dur := "-"
 		if t.Duration > 0 {
@@ -119,7 +125,8 @@ func (s *TUIState) render() {
 			colorGray, dur, colorReset)
 		t.mu.RUnlock()
 	}
-}	
+}
+
 const (
 	colorMagenta = "\033[35m"
 )
