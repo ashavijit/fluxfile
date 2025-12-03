@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2025-12-03
+
+### Added
+- **Comprehensive Testing Suite**: Added `FluxFile.test_features` and verified all CLI commands (basic, feature-specific, lockfile management).
+- **Refactored Parser Logic**: Implemented tagged switch statements in `internal/parser` for improved performance and readability.
+- **Lint Fixes**: Resolved unused code warnings and optimized switch statements across `internal/lexer`, `internal/parser`, and `internal/executor`.
+
+### Changed
+- **Codebase Optimization**: Refactored `parseRetries`, `parseDesc`, `parseWatch`, and other parser functions to use tagged switches.
+- **Cleaned Up Code**: Removed unused methods (`expectNewline`, `peekChar`) and constants (`colorMagenta`).
+
 ## [2.0.0] - 2025-12-02
 
 ### Added
