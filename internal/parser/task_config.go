@@ -17,11 +17,8 @@ func (p *Parser) parseProfileTask() string {
 
 	p.nextToken()
 
-	if p.currentToken.Type == lexer.STRING {
-		val := p.currentToken.Literal
-		p.nextToken()
-		return val
-	} else if p.currentToken.Type == lexer.IDENT {
+	switch p.currentToken.Type {
+	case lexer.STRING, lexer.IDENT:
 		val := p.currentToken.Literal
 		p.nextToken()
 		return val
@@ -113,10 +110,8 @@ func (p *Parser) parsePre() []ast.Precondition {
 				p.nextToken()
 
 				var value string
-				if p.currentToken.Type == lexer.STRING {
-					value = p.currentToken.Literal
-					p.nextToken()
-				} else if p.currentToken.Type == lexer.IDENT {
+				switch p.currentToken.Type {
+				case lexer.STRING, lexer.IDENT:
 					value = p.currentToken.Literal
 					p.nextToken()
 				}
@@ -148,15 +143,8 @@ func (p *Parser) parseRetries() int {
 
 	p.nextToken()
 
-	if p.currentToken.Type == lexer.NUMBER {
-		val, err := strconv.Atoi(p.currentToken.Literal)
-		if err != nil {
-			p.addError("invalid number for retries")
-			return 0
-		}
-		p.nextToken()
-		return val
-	} else if p.currentToken.Type == lexer.IDENT {
+	switch p.currentToken.Type {
+	case lexer.NUMBER, lexer.IDENT:
 		val, err := strconv.Atoi(p.currentToken.Literal)
 		if err != nil {
 			p.addError("invalid number for retries")
@@ -179,11 +167,8 @@ func (p *Parser) parseRetryDelay() string {
 
 	p.nextToken()
 
-	if p.currentToken.Type == lexer.STRING {
-		val := p.currentToken.Literal
-		p.nextToken()
-		return val
-	} else if p.currentToken.Type == lexer.IDENT {
+	switch p.currentToken.Type {
+	case lexer.STRING, lexer.IDENT:
 		val := p.currentToken.Literal
 		p.nextToken()
 		return val
@@ -202,11 +187,8 @@ func (p *Parser) parseTimeout() string {
 
 	p.nextToken()
 
-	if p.currentToken.Type == lexer.STRING {
-		val := p.currentToken.Literal
-		p.nextToken()
-		return val
-	} else if p.currentToken.Type == lexer.IDENT {
+	switch p.currentToken.Type {
+	case lexer.STRING, lexer.IDENT:
 		val := p.currentToken.Literal
 		p.nextToken()
 		return val

@@ -225,6 +225,6 @@ func expandString(s string, vars map[string]string) string {
 	return s
 }
 
-func execLookPath(file string) (string, error) {
+func execLookPath(_ string) (string, error) {
 	return "", fmt.Errorf("not implemented")
 }

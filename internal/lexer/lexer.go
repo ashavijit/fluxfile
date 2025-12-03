@@ -38,13 +38,6 @@ func (l *Lexer) readChar() {
 	l.column++
 }
 
-func (l *Lexer) peekChar() byte {
-	if l.readPosition >= len(l.input) {
-		return 0
-	}
-	return l.input[l.readPosition]
-}
-
 func (l *Lexer) NextToken() Token {
 	for {
 		if l.pendingDedent > 0 {
@@ -231,12 +224,13 @@ func (l *Lexer) IsAtLineStart() bool {
 func CountIndent(line string) int {
 	count := 0
 	for _, ch := range line {
-		if ch == ' ' {
+		switch ch {
+		case ' ':
 			count++
-		} else if ch == '\t' {
+		case '\t':
 			count += 4
-		} else {
-			break
+		default:
+			return count
 		}
 	}
 	return count

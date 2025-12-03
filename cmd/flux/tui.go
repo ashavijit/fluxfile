@@ -126,7 +126,3 @@ func (s *TUIState) render() {
 		t.mu.RUnlock()
 	}
 }
-
-const (
-	colorMagenta = "\033[35m"
-)

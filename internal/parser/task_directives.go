@@ -16,11 +16,12 @@ func (p *Parser) parseDesc() string {
 
 	p.nextToken()
 
-	if p.currentToken.Type == lexer.STRING {
+	switch p.currentToken.Type {
+	case lexer.STRING:
 		val := p.currentToken.Literal
 		p.nextToken()
 		return val
-	} else if p.currentToken.Type == lexer.IDENT {
+	case lexer.IDENT:
 		var parts []string
 		for p.currentToken.Type != lexer.NEWLINE && p.currentToken.Type != lexer.EOF {
 			parts = append(parts, p.currentToken.Literal)

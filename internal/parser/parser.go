@@ -36,12 +36,6 @@ func (p *Parser) skipNewlines() {
 	}
 }
 
-func (p *Parser) expectNewline() {
-	if p.currentToken.Type == lexer.NEWLINE {
-		p.nextToken()
-	}
-}
-
 func (p *Parser) addError(msg string) {
 	p.errors = append(p.errors, fmt.Sprintf("%s at line %d", msg, p.currentToken.Line))
 }
@@ -79,7 +73,7 @@ func (p *Parser) Parse() (*ast.FluxFile, error) {
 				fluxFile.Includes = append(fluxFile.Includes, include)
 			}
 		case lexer.EOF:
-			break
+			return fluxFile, nil
 		default:
 			p.nextToken()
 		}
@@ -279,6 +273,10 @@ func (p *Parser) parseTaskBody(task *ast.Task) {
 			task.Docker = p.parseDocker()
 		case lexer.REMOTE:
 			task.Remote = p.parseRemote()
+		case lexer.PROMPT:
+			task.Prompt = p.parsePrompt()
+		case lexer.NOTIFY:
+			task.Notify = p.parseNotify()
 		default:
 			p.nextToken()
 		}
@@ -451,10 +449,8 @@ func (p *Parser) parseWatch() []string {
 
 	var patterns []string
 
-	if p.currentToken.Type == lexer.STRING {
-		patterns = append(patterns, p.currentToken.Literal)
-		p.nextToken()
-	} else if p.currentToken.Type == lexer.IDENT {
+	switch p.currentToken.Type {
+	case lexer.STRING, lexer.IDENT:
 		patterns = append(patterns, p.currentToken.Literal)
 		p.nextToken()
 	}
@@ -629,4 +625,106 @@ func (p *Parser) parseInclude() string {
 	p.nextToken()
 
 	return include
+}
+
+func (p *Parser) parsePrompt() string {
+	p.nextToken()
+
+	if p.currentToken.Type != lexer.COLON {
+		p.addError("expected : after prompt")
+		return ""
+	}
+
+	p.nextToken()
+
+	if p.currentToken.Type != lexer.STRING {
+		p.addError("expected string after prompt:")
+		return ""
+	}
+
+	prompt := p.currentToken.Literal
+	p.nextToken()
+
+	return prompt
+}
+
+func (p *Parser) parseNotify() ast.NotifyConfig {
+	p.nextToken()
+
+	if p.currentToken.Type != lexer.COLON {
+		p.addError("expected : after notify")
+		return ast.NotifyConfig{}
+	}
+
+	p.nextToken()
+
+	// Check for boolean shorthand: notify: true
+	if p.currentToken.Type == lexer.IDENT && (p.currentToken.Literal == "true" || p.currentToken.Literal == "false") {
+		val := p.currentToken.Literal == "true"
+		p.nextToken()
+		if val {
+			return ast.NotifyConfig{
+				Success: "Task completed successfully",
+				Failure: "Task failed",
+			}
+		}
+		return ast.NotifyConfig{}
+	}
+
+	// Check for block configuration
+	p.skipNewlines()
+
+	if p.currentToken.Type == lexer.INDENT {
+		p.nextToken()
+	} else {
+		// If not boolean and not indent, it's an error or empty
+		return ast.NotifyConfig{}
+	}
+
+	config := ast.NotifyConfig{}
+
+	for p.currentToken.Type != lexer.DEDENT && p.currentToken.Type != lexer.EOF {
+		p.skipNewlines()
+
+		if p.currentToken.Type == lexer.DEDENT || p.currentToken.Type == lexer.EOF {
+			break
+		}
+
+		if p.currentToken.Type != lexer.IDENT {
+			p.nextToken()
+			continue
+		}
+
+		key := p.currentToken.Literal
+		p.nextToken()
+
+		if p.currentToken.Type != lexer.COLON {
+			p.addError("expected : in notify block")
+			continue
+		}
+
+		p.nextToken()
+
+		if p.currentToken.Type != lexer.STRING {
+			p.addError("expected string value in notify block")
+			p.nextToken()
+			continue
+		}
+
+		value := p.currentToken.Literal
+		p.nextToken()
+
+		switch key {
+		case "success":
+			config.Success = value
+		case "failure":
+			config.Failure = value
+		}
+	}
+
+	if p.currentToken.Type == lexer.DEDENT {
+		p.nextToken()
+	}
+
+	return config
 }

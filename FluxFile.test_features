@@ -1,0 +1,21 @@
+task test-prompt:
+    prompt: "Do you want to continue?"
+    run:
+        echo "Continuing..."
+
+task test-notify:
+    notify: true
+    run:
+        echo "Task with notification"
+
+task test-notify-custom:
+    notify:
+        success: "Custom Success Message"
+        failure: "Custom Failure Message"
+    run:
+        echo "Task with custom notification"
+
+task test-dry-run:
+    run:
+        echo "This should not run in dry-run mode"
+        touch dry_run_test_file

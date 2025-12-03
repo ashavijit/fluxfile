@@ -46,6 +46,8 @@ const (
 	RETRIES
 	RETRY_DELAY
 	TIMEOUT
+	PROMPT
+	NOTIFY
 
 	SHELL
 	DOLLAR
@@ -76,6 +78,8 @@ var keywords = map[string]TokenType{
 	"retries":      RETRIES,
 	"retry_delay":  RETRY_DELAY,
 	"timeout":      TIMEOUT,
+	"prompt":       PROMPT,
+	"notify":       NOTIFY,
 	"shell":        SHELL,
 	"true":         IDENT,
 	"false":        IDENT,
@@ -173,6 +177,10 @@ func (t TokenType) String() string {
 		return "RETRY_DELAY"
 	case TIMEOUT:
 		return "TIMEOUT"
+	case PROMPT:
+		return "PROMPT"
+	case NOTIFY:
+		return "NOTIFY"
 	case SHELL:
 		return "SHELL"
 	case DOLLAR:

@@ -87,3 +87,23 @@ func TestParseProfile(t *testing.T) {
 		t.Errorf("Expected profile name dev, got %s", fluxFile.Profiles[0].Name)
 	}
 }
+
+func TestParseRetries(t *testing.T) {
+	input := `task flaky:
+    retries: 3
+    run:
+        ./flaky.sh
+`
+
+	l := lexer.New(input)
+	p := New(l)
+	fluxFile, err := p.Parse()
+
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+
+	if fluxFile.Tasks[0].Retries != 3 {
+		t.Errorf("Expected retries 3, got %d", fluxFile.Tasks[0].Retries)
+	}
+}

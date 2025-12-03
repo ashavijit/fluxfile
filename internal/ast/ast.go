@@ -29,6 +29,13 @@ type Task struct {
 	Retries     int
 	RetryDelay  string
 	Timeout     string
+	Prompt      string
+	Notify      NotifyConfig
+}
+
+type NotifyConfig struct {
+	Success string
+	Failure string
 }
 
 type Precondition struct {
@@ -102,6 +109,8 @@ func NewTask(name string) Task {
 		Retries:     0,
 		RetryDelay:  "",
 		Timeout:     "",
+		Prompt:      "",
+		Notify:      NotifyConfig{},
 	}
 }
 

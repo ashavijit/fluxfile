@@ -23,6 +23,7 @@ type Executor struct {
 	cache    *cache.Cache
 	logger   *logger.Logger
 	vars     map[string]string
+	dryRun   bool
 }
 
 type ExecutionResult struct {
@@ -32,7 +33,7 @@ type ExecutionResult struct {
 	Error    error
 }
 
-func New(fluxFile *ast.FluxFile, cacheDir string) (*Executor, error) {
+func New(fluxFile *ast.FluxFile, cacheDir string, dryRun bool) (*Executor, error) {
 	g, err := graph.BuildGraph(fluxFile.Tasks)
 	if err != nil {
 		return nil, err
@@ -49,6 +50,7 @@ func New(fluxFile *ast.FluxFile, cacheDir string) (*Executor, error) {
 		cache:    c,
 		logger:   logger.New(),
 		vars:     fluxFile.Vars,
+		dryRun:   dryRun,
 	}, nil
 }
 
@@ -124,6 +126,15 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		}
 	}
 
+	if task.Prompt != "" {
+		fmt.Printf("%s [y/N]: ", task.Prompt)
+		var response string
+		fmt.Scanln(&response)
+		if strings.ToLower(response) != "y" {
+			return fmt.Errorf("task aborted by user")
+		}
+	}
+
 	cached, inputHash := e.checkEnhancedCache(task, useCache)
 	if cached {
 		e.logger.TaskCached(task.Name)
@@ -184,14 +195,44 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 
 	if success {
 		e.logger.TaskComplete(task.Name, duration)
+		if task.Notify.Success != "" {
+			e.sendNotification("Flux Task Success", task.Notify.Success)
+		}
 	} else {
 		e.logger.TaskFailed(task.Name, execErr)
+		if task.Notify.Failure != "" {
+			e.sendNotification("Flux Task Failure", task.Notify.Failure)
+		}
 	}
 
 	return execErr
 }
 
+func (e *Executor) sendNotification(title, message string) {
+	if e.dryRun {
+		e.logger.Info(fmt.Sprintf("[DryRun] Notification: %s - %s", title, message))
+		return
+	}
+	// Simple cross-platform notification using 'msg' on Windows or 'notify-send' on Linux/Mac
+	// This is a basic implementation
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("msg", "*", fmt.Sprintf("%s: %s", title, message))
+	case "darwin":
+		cmd = exec.Command("osascript", "-e", fmt.Sprintf("display notification \"%s\" with title \"%s\"", message, title))
+	default:
+		cmd = exec.Command("notify-send", title, message)
+	}
+	cmd.Start()
+}
+
 func (e *Executor) runCommand(command string, env map[string]string) error {
+	if e.dryRun {
+		e.logger.Info(fmt.Sprintf("[DryRun] %s", command))
+		return nil
+	}
+
 	e.logger.Command(command)
 
 	var cmd *exec.Cmd
