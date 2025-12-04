@@ -48,7 +48,8 @@ func (l *Logger) TaskCached(name string) {
 
 func (l *Logger) Command(cmd string) {
 	if l.verbose {
-		fmt.Printf("  \033[90m$ %s\033[0m\n", cmd)
+		timestamp := time.Now().Format("15:04:05")
+		fmt.Printf("  \033[90m[%s] $\033[0m %s\n", timestamp, cmd)
 	}
 }
 

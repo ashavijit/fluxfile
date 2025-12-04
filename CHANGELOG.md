@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2025-12-04
+
+### Changed
+- **Command Logging**: Improved command execution logs to include timestamps and better color formatting for improved visibility.
+- **Build System**: Fixed build command in documentation and scripts to correctly build the entire `cmd/flux` package.
+
 ## [2.1.0] - 2025-12-03
 
 ### Added
