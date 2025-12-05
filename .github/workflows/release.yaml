@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v2.2.0)'
+        required: false
+        default: 'latest'
 
 permissions:
   contents: write 
@@ -15,23 +21,45 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: "1.22"
+          go-version: "1.24"
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Build binaries
         run: |
           mkdir -p dist
-          GOOS=linux   GOARCH=amd64 go build -o dist/flux-linux-amd64 ./cmd/flux
-          GOOS=linux   GOARCH=arm64 go build -o dist/flux-linux-arm64 ./cmd/flux
-          GOOS=darwin  GOARCH=amd64 go build -o dist/flux-darwin-amd64 ./cmd/flux
-          GOOS=darwin  GOARCH=arm64 go build -o dist/flux-darwin-arm64 ./cmd/flux
-          GOOS=windows GOARCH=amd64 go build -o dist/flux-windows-amd64.exe ./cmd/flux
+          echo "Building Flux ${{ steps.version.outputs.VERSION }}"
+          GOOS=linux   GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-linux-amd64 ./cmd/flux
+          GOOS=linux   GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-linux-arm64 ./cmd/flux
+          GOOS=darwin  GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-darwin-amd64 ./cmd/flux
+          GOOS=darwin  GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-darwin-arm64 ./cmd/flux
+          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-windows-amd64.exe ./cmd/flux
+          ls -la dist/
 
       - name: Upload Release Files
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.TOKENV1 }}
-          files: dist/**
+          files: dist/*
+          generate_release_notes: true
+
+      - name: Upload artifacts (for manual runs)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: flux-binaries
+          path: dist/
