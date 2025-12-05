@@ -14,6 +14,7 @@ import (
 	"github.com/ashavijit/fluxfile/internal/cache"
 	"github.com/ashavijit/fluxfile/internal/graph"
 	"github.com/ashavijit/fluxfile/internal/logger"
+	"github.com/ashavijit/fluxfile/internal/logs"
 	"github.com/ashavijit/fluxfile/internal/report"
 	"github.com/ashavijit/fluxfile/internal/vars"
 )
@@ -26,6 +27,7 @@ type Executor struct {
 	vars      map[string]string
 	dryRun    bool
 	collector *report.Collector
+	logStore  *logs.LogStore
 }
 
 type ExecutionResult struct {
@@ -46,6 +48,8 @@ func New(fluxFile *ast.FluxFile, cacheDir string, dryRun bool) (*Executor, error
 		return nil, err
 	}
 
+	logStore, _ := logs.NewLogStore(logs.GetLogDir())
+
 	return &Executor{
 		fluxFile: fluxFile,
 		graph:    g,
@@ -53,6 +57,7 @@ func New(fluxFile *ast.FluxFile, cacheDir string, dryRun bool) (*Executor, error
 		logger:   logger.New(),
 		vars:     fluxFile.Vars,
 		dryRun:   dryRun,
+		logStore: logStore,
 	}, nil
 }
 
@@ -101,6 +106,11 @@ func (e *Executor) Execute(taskName string, profile string, useCache bool) error
 func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 	e.logger.TaskStart(task.Name)
 	start := time.Now()
+
+	if e.logStore != nil {
+		e.logStore.StartTask(task.Name)
+		e.logStore.Log("info", fmt.Sprintf("Starting task: %s", task.Name))
+	}
 
 	taskVars := vars.MergeVars(e.vars, task.Env)
 
@@ -217,10 +227,20 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		if task.Notify.Success != "" {
 			e.sendNotification("Flux Task Success", task.Notify.Success)
 		}
+		if e.logStore != nil {
+			e.logStore.Log("info", fmt.Sprintf("Task completed in %v", duration))
+			e.logStore.EndTask(task.Name, true)
+			e.logStore.Save()
+		}
 	} else {
 		e.logger.TaskFailed(task.Name, execErr)
 		if task.Notify.Failure != "" {
 			e.sendNotification("Flux Task Failure", task.Notify.Failure)
+		}
+		if e.logStore != nil {
+			e.logStore.Log("error", fmt.Sprintf("Task failed: %v", execErr))
+			e.logStore.EndTask(task.Name, false)
+			e.logStore.Save()
 		}
 	}
 

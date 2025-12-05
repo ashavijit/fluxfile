@@ -3,12 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 
 	"github.com/ashavijit/fluxfile/internal/config"
 	"github.com/ashavijit/fluxfile/internal/executor"
 	fluxinit "github.com/ashavijit/fluxfile/internal/init"
 	"github.com/ashavijit/fluxfile/internal/logger"
+	"github.com/ashavijit/fluxfile/internal/logs"
 	"github.com/ashavijit/fluxfile/internal/report"
 	"github.com/ashavijit/fluxfile/internal/watcher"
 )
@@ -73,6 +76,11 @@ func main() {
 		if err := fluxinit.Run(cfg); err != nil {
 			log.Fatal(err.Error())
 		}
+		return
+	}
+
+	if len(flag.Args()) > 0 && flag.Args()[0] == "logs" {
+		handleLogs()
 		return
 	}
 
@@ -262,4 +270,41 @@ complete -c flux -s dry-run -d "Simulate task execution"`)
 	default:
 		fmt.Printf("Unsupported shell: %s\n", shell)
 	}
+}
+
+func handleLogs() {
+	logDir := logs.GetLogDir()
+	taskLogs, err := logs.LoadLogs(logDir)
+	if err != nil {
+		fmt.Printf("Failed to load logs: %s\n", err.Error())
+		return
+	}
+
+	if len(taskLogs) == 0 {
+		fmt.Println("No logs found. Run some tasks first.")
+		return
+	}
+
+	htmlPath, err := logs.GenerateHTML(taskLogs)
+	if err != nil {
+		fmt.Printf("Failed to generate HTML: %s\n", err.Error())
+		return
+	}
+
+	absPath, _ := filepath.Abs(htmlPath)
+	fmt.Printf("Opening logs in browser: %s\n", absPath)
+	openBrowser(absPath)
+}
+
+func openBrowser(url string) error {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("cmd", "/c", "start", url)
+	case "darwin":
+		cmd = exec.Command("open", url)
+	default:
+		cmd = exec.Command("xdg-open", url)
+	}
+	return cmd.Start()
 }
