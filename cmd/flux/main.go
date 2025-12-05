@@ -80,6 +80,14 @@ func main() {
 	}
 
 	if len(flag.Args()) > 0 && flag.Args()[0] == "logs" {
+		if len(flag.Args()) > 1 && flag.Args()[1] == "clear" {
+			count, err := logs.ClearLogs()
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+			fmt.Printf("Cleared %d log file(s)\n", count)
+			return
+		}
 		handleLogs()
 		return
 	}

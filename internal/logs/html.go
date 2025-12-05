@@ -181,6 +181,15 @@ const htmlTemplate = `<!DOCTYPE html>
                 </tr>
                 <tr class="details-row" id="details-{{$i}}">
                     <td colspan="6" class="details-cell">
+                        <div style="padding: 12px 16px; background: #161b22; border-bottom: 1px solid #21262d;">
+                            <span style="color: #8b949e; margin-right: 20px;">
+                                <strong>Working Dir:</strong> {{if .WorkDir}}{{.WorkDir}}{{else}}./{{end}}
+                            </span>
+                            {{if .Profile}}<span style="color: #a371f7; margin-right: 20px;"><strong>Profile:</strong> {{.Profile}}</span>{{end}}
+                            {{if .CacheHit}}<span style="color: #3fb950; margin-right: 20px;">Cache Hit</span>{{end}}
+                            {{if .DepsCount}}<span style="color: #8b949e; margin-right: 20px;"><strong>Dependencies:</strong> {{.DepsCount}}</span>{{end}}
+                            {{if .Error}}<span style="color: #f85149;"><strong>Error:</strong> {{.Error}}</span>{{end}}
+                        </div>
                         {{if .Entries}}
                         <table class="log-table">
                             <thead>
@@ -188,6 +197,7 @@ const htmlTemplate = `<!DOCTYPE html>
                                     <th style="width: 120px;">Time</th>
                                     <th style="width: 80px;">Level</th>
                                     <th>Message</th>
+                                    <th style="width: 80px;">Exit</th>
                                     <th style="width: 100px;">Duration</th>
                                 </tr>
                             </thead>
@@ -196,7 +206,8 @@ const htmlTemplate = `<!DOCTYPE html>
                                 <tr>
                                     <td class="mono muted">{{.Timestamp.Format "15:04:05.000"}}</td>
                                     <td><span class="level-{{.Level}}">{{.Level}}</span></td>
-                                    <td>{{if .Command}}<span class="cmd-text">$ {{.Command}}</span>{{else}}{{.Message}}{{end}}</td>
+                                    <td>{{if .Command}}<span class="cmd-text">$ {{.Command}}</span>{{if .Output}}<div style="color: #8b949e; font-size: 12px; margin-top: 4px; white-space: pre-wrap;">{{.Output}}</div>{{end}}{{else}}{{.Message}}{{end}}</td>
+                                    <td class="mono {{if .ExitCode}}failed{{else}}muted{{end}}">{{if .Command}}{{.ExitCode}}{{else}}-{{end}}</td>
                                     <td class="mono muted">{{if .Duration}}{{.Duration}}ms{{else}}-{{end}}</td>
                                 </tr>
                                 {{end}}

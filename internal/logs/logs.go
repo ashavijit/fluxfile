@@ -16,6 +16,8 @@ type LogEntry struct {
 	Message   string    `json:"message"`
 	Command   string    `json:"command,omitempty"`
 	Duration  int64     `json:"duration_ms,omitempty"`
+	ExitCode  int       `json:"exit_code,omitempty"`
+	Output    string    `json:"output,omitempty"`
 }
 
 type TaskLog struct {
@@ -23,6 +25,11 @@ type TaskLog struct {
 	StartTime time.Time  `json:"start_time"`
 	EndTime   time.Time  `json:"end_time,omitempty"`
 	Status    string     `json:"status"`
+	WorkDir   string     `json:"work_dir,omitempty"`
+	Profile   string     `json:"profile,omitempty"`
+	CacheHit  bool       `json:"cache_hit,omitempty"`
+	DepsCount int        `json:"deps_count,omitempty"`
+	Error     string     `json:"error,omitempty"`
 	Entries   []LogEntry `json:"entries"`
 }
 
@@ -175,4 +182,95 @@ func LoadLogs(dir string) ([]*TaskLog, error) {
 
 func GetLogDir() string {
 	return filepath.Join(".flux", "logs")
+}
+
+func ClearLogs() (int, error) {
+	dir := GetLogDir()
+	files, err := filepath.Glob(filepath.Join(dir, "*.json"))
+	if err != nil {
+		return 0, err
+	}
+
+	count := 0
+	for _, file := range files {
+		if err := os.Remove(file); err == nil {
+			count++
+		}
+	}
+
+	// Also remove HTML file
+	htmlPath := filepath.Join(dir, "logs.html")
+	os.Remove(htmlPath)
+
+	return count, nil
+}
+
+func (s *LogStore) SetTaskInfo(workDir, profile string, depsCount int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.current == "" {
+		return
+	}
+
+	task := s.tasks[s.current]
+	if task == nil {
+		return
+	}
+
+	task.WorkDir = workDir
+	task.Profile = profile
+	task.DepsCount = depsCount
+}
+
+func (s *LogStore) SetCacheHit(hit bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.current == "" {
+		return
+	}
+
+	task := s.tasks[s.current]
+	if task != nil {
+		task.CacheHit = hit
+	}
+}
+
+func (s *LogStore) SetError(err string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.current == "" {
+		return
+	}
+
+	task := s.tasks[s.current]
+	if task != nil {
+		task.Error = err
+	}
+}
+
+func (s *LogStore) LogCommandWithOutput(command string, duration time.Duration, exitCode int, output string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.current == "" {
+		return
+	}
+
+	task := s.tasks[s.current]
+	if task == nil {
+		return
+	}
+
+	task.Entries = append(task.Entries, LogEntry{
+		Timestamp: time.Now(),
+		Level:     "cmd",
+		Task:      s.current,
+		Command:   command,
+		Duration:  duration.Milliseconds(),
+		ExitCode:  exitCode,
+		Output:    output,
+	})
 }
