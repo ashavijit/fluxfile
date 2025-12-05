@@ -14,16 +14,18 @@ import (
 	"github.com/ashavijit/fluxfile/internal/cache"
 	"github.com/ashavijit/fluxfile/internal/graph"
 	"github.com/ashavijit/fluxfile/internal/logger"
+	"github.com/ashavijit/fluxfile/internal/report"
 	"github.com/ashavijit/fluxfile/internal/vars"
 )
 
 type Executor struct {
-	fluxFile *ast.FluxFile
-	graph    *graph.Graph
-	cache    *cache.Cache
-	logger   *logger.Logger
-	vars     map[string]string
-	dryRun   bool
+	fluxFile  *ast.FluxFile
+	graph     *graph.Graph
+	cache     *cache.Cache
+	logger    *logger.Logger
+	vars      map[string]string
+	dryRun    bool
+	collector *report.Collector
 }
 
 type ExecutionResult struct {
@@ -52,6 +54,10 @@ func New(fluxFile *ast.FluxFile, cacheDir string, dryRun bool) (*Executor, error
 		vars:     fluxFile.Vars,
 		dryRun:   dryRun,
 	}, nil
+}
+
+func (e *Executor) SetCollector(c *report.Collector) {
+	e.collector = c
 }
 
 func (e *Executor) Execute(taskName string, profile string, useCache bool) error {
@@ -116,6 +122,9 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		}
 		if !shouldRun {
 			e.logger.Info(fmt.Sprintf("Skipping task %s (condition not  met)", task.Name))
+			if e.collector != nil {
+				e.collector.AddSkipped(task.Name)
+			}
 			return nil
 		}
 	}
@@ -138,6 +147,9 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 	cached, inputHash := e.checkEnhancedCache(task, useCache)
 	if cached {
 		e.logger.TaskCached(task.Name)
+		if e.collector != nil {
+			e.collector.Add(task.Name, 0, true, true, nil)
+		}
 		return nil
 	}
 
@@ -146,6 +158,9 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		if err == nil {
 			if entry, ok := e.cache.Get(task.Name, hash); ok && entry.Success {
 				e.logger.TaskCached(task.Name)
+				if e.collector != nil {
+					e.collector.Add(task.Name, 0, true, true, nil)
+				}
 				return nil
 			}
 		}
@@ -191,6 +206,10 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 			}
 			e.cache.Set(entry)
 		}
+	}
+
+	if e.collector != nil {
+		e.collector.Add(task.Name, duration, success, false, execErr)
 	}
 
 	if success {
