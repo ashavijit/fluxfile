@@ -1,10 +1,29 @@
+# Build output
 dist/
-.flux/
-*.log
-coverage.out
+bin/
 *.exe
 *.dll
 *.so
 *.dylib
+
+# Flux runtime
+.flux/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Test files
+*.test
+*.test2
+FluxFile.test*
+coverage.out
+*.log
+
+# Debug
+debug_cmd.go
 COMMANDS.md
