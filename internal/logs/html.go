@@ -18,94 +18,120 @@ const htmlTemplate = `<!DOCTYPE html>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #0d1117;
             color: #c9d1d9;
-            padding: 20px;
-            line-height: 1.6;
+            padding: 24px;
+            line-height: 1.5;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
         h1 {
             color: #58a6ff;
-            border-bottom: 1px solid #30363d;
-            padding-bottom: 16px;
+            font-size: 24px;
             margin-bottom: 24px;
-        }
-        .task-card {
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            overflow: hidden;
-        }
-        .task-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 16px;
-            background: #21262d;
-            cursor: pointer;
+            gap: 12px;
         }
-        .task-header:hover { background: #30363d; }
-        .task-name { font-weight: bold; font-size: 16px; }
-        .task-status {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .status-success { background: #238636; color: #fff; }
-        .status-failed { background: #da3633; color: #fff; }
-        .status-running { background: #bf8700; color: #fff; }
-        .task-meta { color: #8b949e; font-size: 12px; margin-top: 4px; }
-        .task-body { display: none; padding: 16px; border-top: 1px solid #30363d; }
-        .task-card.expanded .task-body { display: block; }
-        .log-entry {
-            padding: 8px 12px;
-            margin: 4px 0;
-            border-radius: 4px;
-            font-size: 13px;
-            background: #0d1117;
-        }
-        .log-timestamp { color: #8b949e; margin-right: 12px; }
-        .log-level {
-            display: inline-block;
-            width: 50px;
-            font-weight: bold;
-        }
-        .level-info { color: #58a6ff; }
-        .level-cmd { color: #a371f7; }
-        .level-error { color: #f85149; }
-        .level-warn { color: #d29922; }
-        .log-message { color: #c9d1d9; }
-        .log-command {
-            background: #1f2428;
-            padding: 8px;
-            border-radius: 4px;
-            margin-top: 4px;
-            color: #7ee787;
-        }
-        .log-duration { color: #8b949e; font-size: 11px; }
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #8b949e;
-        }
+        h1::before { content: ""; display: inline-block; width: 8px; height: 8px; background: #238636; border-radius: 50%; }
         .summary {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
         }
         .summary-card {
             background: #161b22;
             border: 1px solid #30363d;
             border-radius: 8px;
-            padding: 16px;
-            text-align: center;
+            padding: 20px;
         }
-        .summary-value { font-size: 32px; font-weight: bold; color: #58a6ff; }
-        .summary-label { color: #8b949e; font-size: 12px; margin-top: 4px; }
+        .summary-value { font-size: 36px; font-weight: 600; }
+        .summary-label { color: #8b949e; font-size: 13px; margin-top: 4px; }
+        .success { color: #3fb950; }
+        .failed { color: #f85149; }
+        .primary { color: #58a6ff; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #161b22;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            background: #21262d;
+            color: #8b949e;
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #30363d;
+        }
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #21262d;
+            font-size: 14px;
+        }
+        tr:hover { background: #1c2128; }
+        tr:last-child td { border-bottom: none; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-success { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+        .status-failed { background: rgba(248, 81, 73, 0.15); color: #f85149; }
+        .status-running { background: rgba(210, 153, 34, 0.15); color: #d29922; }
+        
+        .task-name { font-weight: 500; color: #f0f6fc; }
+        .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; }
+        .muted { color: #8b949e; }
+        
+        .details-row { display: none; }
+        .details-row.show { display: table-row; }
+        .details-cell {
+            padding: 0 !important;
+            background: #0d1117;
+        }
+        .log-table {
+            width: 100%;
+            margin: 0;
+            border-radius: 0;
+        }
+        .log-table th { background: #161b22; }
+        .log-table td { padding: 10px 16px; font-size: 13px; }
+        
+        .level-info { color: #58a6ff; }
+        .level-cmd { color: #a371f7; }
+        .level-error { color: #f85149; }
+        .level-warn { color: #d29922; }
+        
+        .cmd-text { color: #7ee787; font-family: 'SF Mono', monospace; }
+        
+        .toggle-btn {
+            background: none;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .toggle-btn:hover { background: #21262d; color: #c9d1d9; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #8b949e;
+        }
+        .empty-state h2 { color: #c9d1d9; margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -115,53 +141,75 @@ const htmlTemplate = `<!DOCTYPE html>
         {{if .Tasks}}
         <div class="summary">
             <div class="summary-card">
-                <div class="summary-value">{{.TotalTasks}}</div>
-                <div class="summary-label">Total Tasks</div>
+                <div class="summary-value primary">{{.TotalTasks}}</div>
+                <div class="summary-label">Total Executions</div>
             </div>
             <div class="summary-card">
-                <div class="summary-value" style="color: #238636">{{.SuccessCount}}</div>
+                <div class="summary-value success">{{.SuccessCount}}</div>
                 <div class="summary-label">Successful</div>
             </div>
             <div class="summary-card">
-                <div class="summary-value" style="color: #da3633">{{.FailedCount}}</div>
+                <div class="summary-value failed">{{.FailedCount}}</div>
                 <div class="summary-label">Failed</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value primary">{{if .Tasks}}{{duration (index .Tasks 0).StartTime (index .Tasks 0).EndTime}}{{else}}-{{end}}</div>
+                <div class="summary-label">Last Duration</div>
             </div>
         </div>
         
-        {{range .Tasks}}
-        <div class="task-card" onclick="this.classList.toggle('expanded')">
-            <div class="task-header">
-                <div>
-                    <div class="task-name">{{.TaskName}}</div>
-                    <div class="task-meta">
-                        Started: {{.StartTime.Format "2006-01-02 15:04:05"}}
-                        {{if not .EndTime.IsZero}}
-                        | Duration: {{duration .StartTime .EndTime}}
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40px;"></th>
+                    <th>Task</th>
+                    <th>Status</th>
+                    <th>Started</th>
+                    <th>Duration</th>
+                    <th>Entries</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range $i, $task := .Tasks}}
+                <tr onclick="toggleDetails({{$i}})" style="cursor: pointer;">
+                    <td><button class="toggle-btn" id="btn-{{$i}}">+</button></td>
+                    <td class="task-name">{{.TaskName}}</td>
+                    <td><span class="status-badge status-{{.Status}}">{{.Status}}</span></td>
+                    <td class="mono muted">{{.StartTime.Format "Jan 02 15:04:05"}}</td>
+                    <td class="mono">{{if not .EndTime.IsZero}}{{duration .StartTime .EndTime}}{{else}}-{{end}}</td>
+                    <td class="muted">{{len .Entries}} entries</td>
+                </tr>
+                <tr class="details-row" id="details-{{$i}}">
+                    <td colspan="6" class="details-cell">
+                        {{if .Entries}}
+                        <table class="log-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">Time</th>
+                                    <th style="width: 80px;">Level</th>
+                                    <th>Message</th>
+                                    <th style="width: 100px;">Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{range .Entries}}
+                                <tr>
+                                    <td class="mono muted">{{.Timestamp.Format "15:04:05.000"}}</td>
+                                    <td><span class="level-{{.Level}}">{{.Level}}</span></td>
+                                    <td>{{if .Command}}<span class="cmd-text">$ {{.Command}}</span>{{else}}{{.Message}}{{end}}</td>
+                                    <td class="mono muted">{{if .Duration}}{{.Duration}}ms{{else}}-{{end}}</td>
+                                </tr>
+                                {{end}}
+                            </tbody>
+                        </table>
+                        {{else}}
+                        <div style="padding: 20px; text-align: center; color: #8b949e;">No log entries</div>
                         {{end}}
-                    </div>
-                </div>
-                <span class="task-status status-{{.Status}}">{{.Status}}</span>
-            </div>
-            <div class="task-body">
-                {{if .Entries}}
-                {{range .Entries}}
-                <div class="log-entry">
-                    <span class="log-timestamp">{{.Timestamp.Format "15:04:05.000"}}</span>
-                    <span class="log-level level-{{.Level}}">{{.Level}}</span>
-                    {{if .Command}}
-                    <div class="log-command">$ {{.Command}}</div>
-                    {{if .Duration}}<span class="log-duration">{{.Duration}}ms</span>{{end}}
-                    {{else}}
-                    <span class="log-message">{{.Message}}</span>
-                    {{end}}
-                </div>
+                    </td>
+                </tr>
                 {{end}}
-                {{else}}
-                <div class="empty-state">No log entries</div>
-                {{end}}
-            </div>
-        </div>
-        {{end}}
+            </tbody>
+        </table>
         {{else}}
         <div class="empty-state">
             <h2>No logs found</h2>
@@ -170,9 +218,14 @@ const htmlTemplate = `<!DOCTYPE html>
         {{end}}
     </div>
     <script>
-        // Auto-expand first task
-        const first = document.querySelector('.task-card');
-        if (first) first.classList.add('expanded');
+        function toggleDetails(i) {
+            const row = document.getElementById('details-' + i);
+            const btn = document.getElementById('btn-' + i);
+            row.classList.toggle('show');
+            btn.textContent = row.classList.contains('show') ? '-' : '+';
+        }
+        // Auto-expand first
+        if (document.querySelector('.details-row')) toggleDetails(0);
     </script>
 </body>
 </html>`

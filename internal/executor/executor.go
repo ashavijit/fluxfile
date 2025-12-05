@@ -48,8 +48,6 @@ func New(fluxFile *ast.FluxFile, cacheDir string, dryRun bool) (*Executor, error
 		return nil, err
 	}
 
-	logStore, _ := logs.NewLogStore(logs.GetLogDir())
-
 	return &Executor{
 		fluxFile: fluxFile,
 		graph:    g,
@@ -57,7 +55,6 @@ func New(fluxFile *ast.FluxFile, cacheDir string, dryRun bool) (*Executor, error
 		logger:   logger.New(),
 		vars:     fluxFile.Vars,
 		dryRun:   dryRun,
-		logStore: logStore,
 	}, nil
 }
 
@@ -107,6 +104,9 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 	e.logger.TaskStart(task.Name)
 	start := time.Now()
 
+	if e.logStore == nil {
+		e.logStore, _ = logs.NewLogStore(logs.GetLogDir())
+	}
 	if e.logStore != nil {
 		e.logStore.StartTask(task.Name)
 		e.logStore.Log("info", fmt.Sprintf("Starting task: %s", task.Name))
