@@ -3,11 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 
 	"github.com/ashavijit/fluxfile/internal/config"
 	"github.com/ashavijit/fluxfile/internal/executor"
+	fluxinit "github.com/ashavijit/fluxfile/internal/init"
 	"github.com/ashavijit/fluxfile/internal/logger"
+	"github.com/ashavijit/fluxfile/internal/logs"
+	"github.com/ashavijit/fluxfile/internal/report"
 	"github.com/ashavijit/fluxfile/internal/watcher"
 )
 
@@ -46,6 +51,10 @@ func main() {
 	runTUI := flag.Bool("tui", false, "Run interactive TUI mode")
 	dryRun := flag.Bool("dry-run", false, "Simulate task execution")
 	completion := flag.String("completion", "", "Generate shell completion script (bash, zsh, fish, powershell)")
+	initCmd := flag.Bool("init", false, "Initialize a new FluxFile")
+	initTemplate := flag.String("template", "", "Template for init (go, node, python, rust, generic)")
+	showReport := flag.Bool("report", false, "Show execution report after task completion")
+	reportJSON := flag.String("report-json", "", "Save execution report as JSON to specified path")
 
 	flag.Parse()
 
@@ -56,6 +65,30 @@ func main() {
 
 	if *completion != "" {
 		generateCompletion(*completion)
+		return
+	}
+
+	if *initCmd || (len(flag.Args()) > 0 && flag.Args()[0] == "init") {
+		cfg := fluxinit.Config{
+			Template:  *initTemplate,
+			Directory: ".",
+		}
+		if err := fluxinit.Run(cfg); err != nil {
+			log.Fatal(err.Error())
+		}
+		return
+	}
+
+	if len(flag.Args()) > 0 && flag.Args()[0] == "logs" {
+		if len(flag.Args()) > 1 && flag.Args()[1] == "clear" {
+			count, err := logs.ClearLogs()
+			if err != nil {
+				log.Fatal(err.Error())
+			}
+			fmt.Printf("Cleared %d log file(s)\n", count)
+			return
+		}
+		handleLogs()
 		return
 	}
 
@@ -123,6 +156,12 @@ func main() {
 		return
 	}
 
+	var collector *report.Collector
+	if *showReport || *reportJSON != "" {
+		collector = report.NewCollector()
+		exec.SetCollector(collector)
+	}
+
 	if *watch && len(task.Watch) > 0 {
 		log.Info(fmt.Sprintf("Starting watch mode for task: %s", *taskName))
 
@@ -147,6 +186,20 @@ func main() {
 	} else {
 		if err := exec.Execute(*taskName, *profile, !*noCache); err != nil {
 			log.Fatal(err.Error())
+		}
+	}
+
+	if collector != nil {
+		rep := collector.Generate()
+		if *showReport {
+			rep.Print()
+		}
+		if *reportJSON != "" {
+			if err := rep.WriteJSON(*reportJSON); err != nil {
+				log.Error(fmt.Sprintf("Failed to write report JSON: %s", err.Error()))
+			} else {
+				fmt.Printf("Report saved to %s\n", *reportJSON)
+			}
 		}
 	}
 }
@@ -225,4 +278,41 @@ complete -c flux -s dry-run -d "Simulate task execution"`)
 	default:
 		fmt.Printf("Unsupported shell: %s\n", shell)
 	}
+}
+
+func handleLogs() {
+	logDir := logs.GetLogDir()
+	taskLogs, err := logs.LoadLogs(logDir)
+	if err != nil {
+		fmt.Printf("Failed to load logs: %s\n", err.Error())
+		return
+	}
+
+	if len(taskLogs) == 0 {
+		fmt.Println("No logs found. Run some tasks first.")
+		return
+	}
+
+	htmlPath, err := logs.GenerateHTML(taskLogs)
+	if err != nil {
+		fmt.Printf("Failed to generate HTML: %s\n", err.Error())
+		return
+	}
+
+	absPath, _ := filepath.Abs(htmlPath)
+	fmt.Printf("Opening logs in browser: %s\n", absPath)
+	openBrowser(absPath)
+}
+
+func openBrowser(url string) error {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("cmd", "/c", "start", url)
+	case "darwin":
+		cmd = exec.Command("open", url)
+	default:
+		cmd = exec.Command("xdg-open", url)
+	}
+	return cmd.Start()
 }

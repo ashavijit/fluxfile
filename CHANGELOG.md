@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2025-12-05
+
+### Added
+
+#### Project Scaffolding
+- **`flux init`** - Interactive project initialization
+  - Auto-detects project type (Go, Node, Python, Rust)
+  - `--template` flag to specify template explicitly
+  - Creates FluxFile with common tasks for each project type
+  - Sets up `.flux` directory for cache and logs
+
+#### Execution Reports
+- **`--report`** - Display execution timing report after task completion
+  - Shows task name, status, duration in formatted table
+  - Summary with total time, passed/failed/cached counts
+- **`--report-json <path>`** - Export report as JSON file
+
+#### HTML Log Viewer
+- **`flux logs`** - Opens execution history in browser
+  - Dark-themed table UI with expandable task details
+  - Summary cards showing success/failure statistics
+  - Per-task log entries with timestamps and durations
+  - Logs stored in `.flux/logs/` as JSON files
+
+### Changed
+- **Performance**: LogStore now lazily initialized only during task execution
+- **Log Storage**: Task logs saved per-execution with timestamp-based filenames
+
 ## [2.1.1] - 2025-12-04
 
 ### Changed

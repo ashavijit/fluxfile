@@ -14,16 +14,20 @@ import (
 	"github.com/ashavijit/fluxfile/internal/cache"
 	"github.com/ashavijit/fluxfile/internal/graph"
 	"github.com/ashavijit/fluxfile/internal/logger"
+	"github.com/ashavijit/fluxfile/internal/logs"
+	"github.com/ashavijit/fluxfile/internal/report"
 	"github.com/ashavijit/fluxfile/internal/vars"
 )
 
 type Executor struct {
-	fluxFile *ast.FluxFile
-	graph    *graph.Graph
-	cache    *cache.Cache
-	logger   *logger.Logger
-	vars     map[string]string
-	dryRun   bool
+	fluxFile  *ast.FluxFile
+	graph     *graph.Graph
+	cache     *cache.Cache
+	logger    *logger.Logger
+	vars      map[string]string
+	dryRun    bool
+	collector *report.Collector
+	logStore  *logs.LogStore
 }
 
 type ExecutionResult struct {
@@ -52,6 +56,10 @@ func New(fluxFile *ast.FluxFile, cacheDir string, dryRun bool) (*Executor, error
 		vars:     fluxFile.Vars,
 		dryRun:   dryRun,
 	}, nil
+}
+
+func (e *Executor) SetCollector(c *report.Collector) {
+	e.collector = c
 }
 
 func (e *Executor) Execute(taskName string, profile string, useCache bool) error {
@@ -96,6 +104,14 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 	e.logger.TaskStart(task.Name)
 	start := time.Now()
 
+	if e.logStore == nil {
+		e.logStore, _ = logs.NewLogStore(logs.GetLogDir())
+	}
+	if e.logStore != nil {
+		e.logStore.StartTask(task.Name)
+		e.logStore.Log("info", fmt.Sprintf("Starting task: %s", task.Name))
+	}
+
 	taskVars := vars.MergeVars(e.vars, task.Env)
 
 	if task.Profile != "" {
@@ -116,6 +132,9 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		}
 		if !shouldRun {
 			e.logger.Info(fmt.Sprintf("Skipping task %s (condition not  met)", task.Name))
+			if e.collector != nil {
+				e.collector.AddSkipped(task.Name)
+			}
 			return nil
 		}
 	}
@@ -138,6 +157,9 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 	cached, inputHash := e.checkEnhancedCache(task, useCache)
 	if cached {
 		e.logger.TaskCached(task.Name)
+		if e.collector != nil {
+			e.collector.Add(task.Name, 0, true, true, nil)
+		}
 		return nil
 	}
 
@@ -146,6 +168,9 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		if err == nil {
 			if entry, ok := e.cache.Get(task.Name, hash); ok && entry.Success {
 				e.logger.TaskCached(task.Name)
+				if e.collector != nil {
+					e.collector.Add(task.Name, 0, true, true, nil)
+				}
 				return nil
 			}
 		}
@@ -193,15 +218,29 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		}
 	}
 
+	if e.collector != nil {
+		e.collector.Add(task.Name, duration, success, false, execErr)
+	}
+
 	if success {
 		e.logger.TaskComplete(task.Name, duration)
 		if task.Notify.Success != "" {
 			e.sendNotification("Flux Task Success", task.Notify.Success)
 		}
+		if e.logStore != nil {
+			e.logStore.Log("info", fmt.Sprintf("Task completed in %v", duration))
+			e.logStore.EndTask(task.Name, true)
+			e.logStore.Save()
+		}
 	} else {
 		e.logger.TaskFailed(task.Name, execErr)
 		if task.Notify.Failure != "" {
 			e.sendNotification("Flux Task Failure", task.Notify.Failure)
+		}
+		if e.logStore != nil {
+			e.logStore.Log("error", fmt.Sprintf("Task failed: %v", execErr))
+			e.logStore.EndTask(task.Name, false)
+			e.logStore.Save()
 		}
 	}
 

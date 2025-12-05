@@ -1,62 +1,50 @@
-var PROJECT = flux
-var VERSION = $(shell "git describe --tags --always")
+var PROJECT = fluxfile
 
 task build:
-    deps: fmt, lint
-    env:
-        GO111MODULE = on
+    desc: Build the Go binary
+    cache: true
+    inputs:
+        **/*.go
+        go.mod
+        go.sum
+    outputs:
+        bin/${PROJECT}
     run:
-        go build -o dist/${PROJECT} ./cmd/flux
-
-task fmt:
-    run:
-        go fmt ./...
-
-task lint:
-    run:
-        golangci-lint run
-
-task dev:
-    watch: **/*.go
-    run:
-        go run ./cmd/flux
-
-task build-all:
-    matrix:
-        os: linux, darwin, windows
-        arch: amd64, arm64
-    run:
-        GOOS=${os} GOARCH=${arch} go build -o dist/${PROJECT}-${os}-${arch} ./cmd/flux
-
-task docker-build:
-    docker: true
-    run:
-        docker build -t ${PROJECT}:${VERSION} .
-
-task deploy:
-    remote: "root@12.34.56.78"
-    deps: docker-build
-    run:
-        docker pull ${PROJECT}:${VERSION}
-        docker compose up -d
+        go build -o bin/${PROJECT} ./cmd/flux
 
 task test:
+    desc: Run all tests
     run:
         go test ./... -v
 
-task clean:
+task lint:
+    desc: Run linter
     run:
-        rm -rf dist/
-        rm -rf .flux/
+        golangci-lint run
+
+task fmt:
+    desc: Format code
+    run:
+        go fmt ./...
+
+task dev:
+    desc: Watch and rebuild
+    watch: **/*.go
+    ignore:
+        vendor/**
+        **/*_test.go
+    run:
+        go run ./cmd/flux
+
+task clean:
+    desc: Remove build artifacts
+    run:
+        rm -rf bin/
 
 profile dev:
     env:
-        MODE = dev
-        LOG = debug
+        GO_ENV = development
 
 profile prod:
     env:
-        MODE = production
-        LOG = error
-
-include "plugins/docker.flux"
+        GO_ENV = production
