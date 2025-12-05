@@ -18,6 +18,9 @@ Modern task runner and build automation tool with a clean, minimal syntax.
 - Variable expansion and shell command execution
 - Profile support for environment-specific configuration
 - Include directive for modular FluxFiles
+- **Project Scaffolding** - `flux init` with templates for Go, Node, Python, Rust
+- **Execution Reports** - `--report` flag for timing metrics
+- **HTML Log Viewer** - `flux logs` opens execution history in browser
 
 ## Installation
 
@@ -135,6 +138,14 @@ Options:
   -no-cache     Disable caching
   -f string     Path to FluxFile
   -v            Show version
+  --init        Initialize new FluxFile
+  --template    Template for init (go, node, python, rust, generic)
+  --report      Show execution timing report
+  --report-json Save report as JSON file
+
+Commands:
+  flux init              Create FluxFile from detected project type
+  flux logs              Open execution logs in browser
 ```
 
 ## Examples
