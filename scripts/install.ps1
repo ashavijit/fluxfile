@@ -1,53 +1,87 @@
 $ErrorActionPreference = "Stop"
 
-function Show-Spinner($Message) {
-    $spinner = @('|', '/', '-', '\')
-    $i = 0
-    while ($global:spin -eq $true) {
-        $char = $spinner[$i % $spinner.Length]
-        Write-Host -NoNewline "`r[$char] $Message"
-        Start-Sleep -Milliseconds 120
-        $i++
-    }
-    Write-Host "`r[OK] $Message"
+$Cyan = [char]27 + "[36m"
+$Green = [char]27 + "[32m"
+$Yellow = [char]27 + "[33m"
+$Red = [char]27 + "[31m"
+$Reset = [char]27 + "[0m"
+$Bold = [char]27 + "[1m"
+
+function Write-Step($Icon, $Message, $Color = $Reset) {
+    Write-Host "  $Color$Icon$Reset $Message"
 }
 
-Write-Host ""
-Write-Host "== Installing Flux =="
-Write-Host ""
+function Write-Header {
+    Write-Host ""
+    Write-Host "  $Cyan$Bold╔═══════════════════════════════════════╗$Reset"
+    Write-Host "  $Cyan$Bold║           FLUX INSTALLER              ║$Reset"
+    Write-Host "  $Cyan$Bold╚═══════════════════════════════════════╝$Reset"
+    Write-Host ""
+}
+
+Write-Header
 
 $OS = "windows"
 $ARCH = if ([Environment]::Is64BitOperatingSystem) { "amd64" } else { "386" }
-
 $BIN_URL = "https://github.com/ashavijit/fluxfile/releases/latest/download/flux-${OS}-${ARCH}.exe"
 $INSTALL_DIR = "$env:LOCALAPPDATA\flux"
 $BIN_PATH = "$INSTALL_DIR\flux.exe"
 
 if (!(Test-Path $INSTALL_DIR)) {
-    Write-Host "[*] Creating installation directory..."
+    Write-Step "📁" "Creating installation directory..."
     New-Item -ItemType Directory -Path $INSTALL_DIR | Out-Null
 }
-
-$global:spin = $true
-Start-Job -ScriptBlock { param($msg) Show-Spinner $msg } -ArgumentList "Downloading Flux..." | Out-Null
-
-try {
-    Invoke-WebRequest -Uri $BIN_URL -OutFile $BIN_PATH -ErrorAction Stop
-} finally {
-    $global:spin = $false
-    Start-Sleep -Milliseconds 200
+if (Test-Path $BIN_PATH) {
+    Write-Step "🗑️" "Removing old version..." $Yellow
+    try {
+        Remove-Item $BIN_PATH -Force -ErrorAction Stop
+        Write-Step "✓" "Old version removed" $Green
+    } catch {
+        Write-Step "⚠" "Could not remove old version (may be in use)" $Yellow
+    }
 }
 
+# Download new binary
+Write-Step "⬇️" "Downloading Flux ($OS-$ARCH)..."
+try {
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest -Uri $BIN_URL -OutFile $BIN_PATH -ErrorAction Stop
+    Write-Step "✓" "Download complete" $Green
+} catch {
+    Write-Step "✗" "Download failed: $_" $Red
+    exit 1
+}
+
+# Update PATH
 $USER_PATH = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($USER_PATH -notlike "*$INSTALL_DIR*") {
-    Write-Host "[*] Adding flux to PATH..."
+    Write-Step "🔧" "Adding flux to PATH..."
     [Environment]::SetEnvironmentVariable("Path", "$USER_PATH;$INSTALL_DIR", "User")
-    Write-Host "[OK] PATH updated."
+    Write-Step "✓" "PATH updated" $Green
+} else {
+    Write-Step "✓" "PATH already configured" $Green
+}
+
+# Verify installation
+Write-Host ""
+Write-Host "  $Green$Bold╔═══════════════════════════════════════╗$Reset"
+Write-Host "  $Green$Bold║         INSTALLATION COMPLETE         ║$Reset"
+Write-Host "  $Green$Bold╚═══════════════════════════════════════╝$Reset"
+Write-Host ""
+
+Write-Step "📍" "Installed to: $BIN_PATH"
+
+try {
+    $version = & $BIN_PATH -v 2>&1
+    Write-Step "🚀" "Version: $version"
+} catch {
+    Write-Step "⚠" "Could not verify version" $Yellow
 }
 
 Write-Host ""
-Write-Host "[OK] Flux installed successfully."
-Write-Host "[*] Running flux --version"
+Write-Host "  ${Cyan}Usage:$Reset"
+Write-Host "    flux init            Create new FluxFile"
+Write-Host "    flux build           Run build task"
+Write-Host "    flux -l              List all tasks"
+Write-Host "    flux logs            View execution logs"
 Write-Host ""
-
-& $BIN_PATH -v

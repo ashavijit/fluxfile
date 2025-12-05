@@ -10,7 +10,7 @@ task build:
     outputs:
         bin/${PROJECT}
     run:
-        go build -o bin/${PROJECT} ./cmd/flux
+        go build -o bin/${PROJECT} ./cmd/${PROJECT}
 
 task test:
     desc: Run all tests
@@ -34,7 +34,7 @@ task dev:
         vendor/**
         **/*_test.go
     run:
-        go run ./cmd/flux
+        go run ./cmd/${PROJECT}
 
 task clean:
     desc: Remove build artifacts
