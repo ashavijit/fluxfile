@@ -27,7 +27,7 @@ type Metadata struct {
 	FluxFilePath string `json:"fluxfile_path"`
 	Hostname     string `json:"hostname,omitempty"`
 	User         string `json:"user,omitempty"`
-	GoVersion    string `json:"go_version"`
+	FluxVersion  string `json:"flux_version"`
 	OS           string `json:"os"`
 	Arch         string `json:"arch"`
 }
@@ -64,11 +64,11 @@ type FileChange struct {
 	NewSize    int64
 }
 
-func Generate(fluxFile *ast.FluxFile) (*LockFile, error) {
-	return GenerateWithPath(fluxFile, "FluxFile")
+func Generate(fluxFile *ast.FluxFile, version string) (*LockFile, error) {
+	return GenerateWithPath(fluxFile, "FluxFile", version)
 }
 
-func GenerateWithPath(fluxFile *ast.FluxFile, fluxFilePath string) (*LockFile, error) {
+func GenerateWithPath(fluxFile *ast.FluxFile, fluxFilePath string, version string) (*LockFile, error) {
 	hostname, _ := os.Hostname()
 	user := os.Getenv("USER")
 	if user == "" {
@@ -85,7 +85,7 @@ func GenerateWithPath(fluxFile *ast.FluxFile, fluxFilePath string) (*LockFile, e
 			FluxFilePath: fluxFilePath,
 			Hostname:     hostname,
 			User:         user,
-			GoVersion:    runtime.Version(),
+			FluxVersion:  version,
 			OS:           runtime.GOOS,
 			Arch:         runtime.GOARCH,
 		},
