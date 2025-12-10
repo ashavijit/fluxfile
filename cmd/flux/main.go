@@ -55,6 +55,9 @@ func main() {
 	initTemplate := flag.String("template", "", "Template for init (go, node, python, rust, generic)")
 	showReport := flag.Bool("report", false, "Show execution report after task completion")
 	reportJSON := flag.String("report-json", "", "Save execution report as JSON to specified path")
+	showGraph := flag.Bool("graph", false, "Show dependency graph")
+	graphDot := flag.Bool("dot", false, "Output graph in Graphviz DOT format")
+	graphMermaid := flag.Bool("mermaid", false, "Output graph in Mermaid format")
 
 	flag.Parse()
 
@@ -89,6 +92,10 @@ func main() {
 			return
 		}
 		handleLogs()
+		return
+	}
+
+	if handleGraphCommands(*showGraph, *graphDot, *graphMermaid, *taskName, *fluxFilePath) {
 		return
 	}
 
@@ -215,7 +222,7 @@ func generateCompletion(shell string) {
     opts="$(flux -l | grep '  -' | awk '{print $2}')"
 
     if [[ ${cur} == -* ]] ; then
-        COMPREPLY=( $(compgen -W "-t -p -l -show -w -no-cache -f -v -lock -check-lock -lock-update -lock-diff -lock-clean -json -tui -dry-run" -- ${cur}) )
+        COMPREPLY=( $(compgen -W "-t -p -l -show -w -no-cache -f -v -lock -check-lock -lock-update -lock-diff -lock-clean -json -tui -dry-run -graph -dot -mermaid" -- ${cur}) )
         return 0
     fi
 
@@ -244,6 +251,9 @@ _flux() {
         '-json[Output in JSON format]' \
         '-tui[Run interactive TUI mode]' \
         '-dry-run[Simulate task execution]' \
+        '-graph[Show dependency graph]' \
+        '-dot[Output graph in Graphviz DOT format]' \
+        '-mermaid[Output graph in Mermaid format]' \
         '1: :($tasks)'
 }
 _flux`)
@@ -268,7 +278,10 @@ complete -c flux -s lock-diff -d "Show detailed diff between lock and current st
 complete -c flux -s lock-clean -d "Remove stale tasks from lock file"
 complete -c flux -s json -d "Output in JSON format"
 complete -c flux -s tui -d "Run interactive TUI mode"
-complete -c flux -s dry-run -d "Simulate task execution"`)
+complete -c flux -s dry-run -d "Simulate task execution"
+complete -c flux -s graph -d "Show dependency graph"
+complete -c flux -s dot -d "Output graph in Graphviz DOT format"
+complete -c flux -s mermaid -d "Output graph in Mermaid format"`)
 	case "powershell":
 		fmt.Println(`Register-ArgumentCompleter -Native -CommandName flux -ScriptBlock {
     param($commandName, $wordToComplete, $cursorPosition)
