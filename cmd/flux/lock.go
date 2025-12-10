@@ -9,7 +9,7 @@ import (
 )
 
 func handleLockCommands(generateLock, checkLock bool, lockUpdate, lockDiff, lockClean bool, updateTask, fluxFilePath string, jsonOutput bool) bool {
-	if !generateLock && !checkLock && !lockDiff && !lockClean && lockUpdate == false {
+	if !generateLock && !checkLock && !lockDiff && !lockClean && !lockUpdate {
 		return false
 	}
 
@@ -32,7 +32,7 @@ func handleLockCommands(generateLock, checkLock bool, lockUpdate, lockDiff, lock
 	lockPath := "FluxFile.lock"
 
 	if generateLock {
-		lockFile, err := lock.GenerateWithPath(fluxFile, path)
+		lockFile, err := lock.GenerateWithPath(fluxFile, path, version)
 		if err != nil {
 			fmt.Printf("[ERROR] Failed to generate lock: %s\n", err.Error())
 			return true
