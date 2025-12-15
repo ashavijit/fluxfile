@@ -1,7 +1,19 @@
 var PROJECT = fluxfile
 
+task fmt:
+    desc: Format code
+    run:
+        go fmt ./...
+
+task lint:
+    desc: Run linter
+    deps: fmt
+    run:
+        golangci-lint run
+
 task build:
     desc: Build the Go binary
+    deps: lint
     cache: true
     inputs:
         **/*.go
@@ -14,18 +26,9 @@ task build:
 
 task test:
     desc: Run all tests
+    deps: build
     run:
         go test ./... -v
-
-task lint:
-    desc: Run linter
-    run:
-        golangci-lint run
-
-task fmt:
-    desc: Format code
-    run:
-        go fmt ./...
 
 task dev:
     desc: Watch and rebuild

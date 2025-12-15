@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -225,6 +226,6 @@ func expandString(s string, vars map[string]string) string {
 	return s
 }
 
-func execLookPath(_ string) (string, error) {
-	return "", fmt.Errorf("not implemented")
+func execLookPath(file string) (string, error) {
+	return exec.LookPath(file)
 }

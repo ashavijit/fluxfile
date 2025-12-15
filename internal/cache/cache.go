@@ -70,16 +70,19 @@ func (c *Cache) Clear() error {
 
 func HashFiles(patterns []string) (string, error) {
 	h := sha256.New()
+	var filesHashed int
 
 	for _, pattern := range patterns {
 		matches, err := filepath.Glob(pattern)
 		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: invalid glob pattern %q: %v\n", pattern, err)
 			continue
 		}
 
 		for _, match := range matches {
 			info, err := os.Stat(match)
 			if err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: cannot stat %q: %v\n", match, err)
 				continue
 			}
 
@@ -89,17 +92,20 @@ func HashFiles(patterns []string) (string, error) {
 
 			f, err := os.Open(match)
 			if err != nil {
+				fmt.Fprintf(os.Stderr, "Warning: cannot open %q: %v\n", match, err)
 				continue
 			}
 
 			if _, err := io.Copy(h, f); err != nil {
 				f.Close()
+				fmt.Fprintf(os.Stderr, "Warning: cannot read %q: %v\n", match, err)
 				continue
 			}
 			f.Close()
 
 			h.Write([]byte(match))
 			h.Write([]byte(info.ModTime().String()))
+			filesHashed++
 		}
 	}
 
