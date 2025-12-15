@@ -140,25 +140,113 @@ func GenerateWithPath(fluxFile *ast.FluxFile, fluxFilePath string, version strin
 }
 
 func Save(lock *LockFile, path string) error {
+	return SaveAtomic(lock, path)
+}
+
+func SaveAtomic(lock *LockFile, path string) error {
 	data, err := json.MarshalIndent(lock, "", "  ")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal lock file: %w", err)
 	}
-	return os.WriteFile(path, data, 0644)
+
+	checksum := sha256.Sum256(data)
+	wrapper := struct {
+		Checksum string   `json:"_checksum"`
+		Lock     LockFile `json:"lock"`
+	}{
+		Checksum: fmt.Sprintf("%x", checksum[:]),
+		Lock:     *lock,
+	}
+
+	wrapperData, err := json.MarshalIndent(wrapper, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal wrapper: %w", err)
+	}
+
+	tmpPath := path + ".tmp"
+	if err := os.WriteFile(tmpPath, wrapperData, 0644); err != nil {
+		return fmt.Errorf("failed to write temp file: %w", err)
+	}
+
+	if err := os.Rename(tmpPath, path); err != nil {
+		os.Remove(tmpPath)
+		return fmt.Errorf("failed to rename temp file: %w", err)
+	}
+
+	return nil
 }
 
 func Load(path string) (*LockFile, error) {
+	return LoadWithValidation(path)
+}
+
+func LoadWithValidation(path string) (*LockFile, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read lock file: %w", err)
 	}
 
-	var lock LockFile
-	if err := json.Unmarshal(data, &lock); err != nil {
-		return nil, err
+	var wrapper struct {
+		Checksum string   `json:"_checksum"`
+		Lock     LockFile `json:"lock"`
 	}
 
-	return &lock, nil
+	if err := json.Unmarshal(data, &wrapper); err != nil {
+		var lock LockFile
+		if err2 := json.Unmarshal(data, &lock); err2 != nil {
+			return nil, fmt.Errorf("failed to parse lock file: %w", err)
+		}
+		return &lock, nil
+	}
+
+	if wrapper.Checksum != "" {
+		lockData, _ := json.MarshalIndent(wrapper.Lock, "", "  ")
+		actualChecksum := sha256.Sum256(lockData)
+		expectedChecksum := wrapper.Checksum
+
+		if fmt.Sprintf("%x", actualChecksum[:]) != expectedChecksum {
+			return nil, fmt.Errorf("lock file corrupted: checksum mismatch")
+		}
+	}
+
+	return &wrapper.Lock, nil
+}
+
+func Exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+func IsStale(lock *LockFile, fluxFilePath string) (bool, error) {
+	currentHash, err := hashFile(fluxFilePath)
+	if err != nil {
+		return false, err
+	}
+	return currentHash != lock.FluxFileHash, nil
+}
+
+func NeedsRegeneration(lock *LockFile, fluxFile *ast.FluxFile) bool {
+	for _, task := range fluxFile.Tasks {
+		if len(task.Inputs) == 0 && len(task.Outputs) == 0 {
+			continue
+		}
+
+		taskLock, exists := lock.Tasks[task.Name]
+		if !exists {
+			return true
+		}
+
+		currentConfigHash := computeTaskConfigHash(task)
+		if currentConfigHash != taskLock.ConfigHash {
+			return true
+		}
+
+		currentCommandHash := computeCommandHash(task.Run)
+		if currentCommandHash != taskLock.CommandHash {
+			return true
+		}
+	}
+	return false
 }
 
 func Verify(lock *LockFile) (map[string][]string, error) {
