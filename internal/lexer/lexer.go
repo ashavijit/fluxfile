@@ -53,7 +53,6 @@ func (l *Lexer) NextToken() Token {
 			}
 
 			if l.ch == '\n' || l.ch == '#' || l.ch == 0 {
-				// Handle blank lines or comments - continue instead of recursing
 				if l.ch == '\n' {
 					l.line++
 					l.column = 0
@@ -62,8 +61,6 @@ func (l *Lexer) NextToken() Token {
 				} else if l.ch == '#' {
 					tok := Token{Type: COMMENT, Literal: l.readComment(), Line: l.line, Column: l.column}
 					return tok
-				} else {
-					// ch == 0, fall through to EOF handling below
 				}
 			}
 

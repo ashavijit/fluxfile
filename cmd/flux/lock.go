@@ -8,7 +8,7 @@ import (
 	"github.com/ashavijit/fluxfile/internal/lock"
 )
 
-func handleLockCommands(generateLock, checkLock bool, lockUpdate, lockDiff, lockClean bool, updateTask, fluxFilePath string, jsonOutput bool) bool {
+func handleLockCommands(generateLock bool, checkLock bool, lockUpdate bool, lockDiff bool, lockClean bool, updateTask string, fluxFilePath string, jsonOutput bool) bool {
 	if !generateLock && !checkLock && !lockDiff && !lockClean && !lockUpdate {
 		return false
 	}

@@ -42,7 +42,36 @@ task dev:
 task clean:
     desc: Remove build artifacts
     run:
-        rm -rf bin/
+        Remove-Item -Recurse -Force bin/ -ErrorAction SilentlyContinue
+
+task task1:
+    desc: Parallel task 1
+    run:
+        echo "Task 1 starting..."
+        Start-Sleep -Seconds 1
+        echo "Task 1 done"
+
+task task2:
+    desc: Parallel task 2
+    run:
+        echo "Task 2 starting..."
+        Start-Sleep -Seconds 1
+        echo "Task 2 done"
+
+task task3:
+    desc: Parallel task 3
+    run:
+        echo "Task 3 starting..."
+        Start-Sleep -Seconds 1
+        echo "Task 3 done"
+
+task parallel-all:
+    desc: Run tasks in parallel
+    deps: task1, task2, task3
+    parallel: true
+    run:
+        echo "All parallel tasks complete!"
+
 
 profile dev:
     env:

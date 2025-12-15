@@ -1,0 +1,11 @@
+{
+  "default_profile": "dev",
+  "cache_dir": ".flux/cache",
+  "log_dir": ".flux/logs",
+  "verbosity": "verbose",
+  "parallel": true,
+  "env": {
+    "APP_NAME": "fluxfile",
+    "APP_VERSION": "2.3.0"
+  }
+}

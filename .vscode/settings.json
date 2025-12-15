@@ -1,5 +1,4 @@
 {
-
   "editor.fontSize": 14,
   "editor.fontFamily": "JetBrains Mono, Fira Code, Consolas, 'Courier New', monospace",
   "editor.fontLigatures": true,
@@ -18,7 +17,6 @@
     "source.fixAll": "always",
     "source.organizeImports": "always"
   },
-
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 800,
   "files.trimTrailingWhitespace": true,
@@ -32,28 +30,20 @@
     "**/.next": true,
     "**/.cache": true
   },
-
   "explorer.compactFolders": false,
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
-
-
   "terminal.integrated.fontSize": 14,
   "terminal.integrated.cursorBlinking": true,
   "terminal.integrated.smoothScrolling": true,
-
   "search.useIgnoreFiles": true,
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true
   },
-
-
   "git.autofetch": true,
   "git.confirmSync": false,
   "git.enableSmartCommit": true,
-
-
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -73,28 +63,20 @@
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "python.formatting.provider": "black",
-
-
   "prettier.singleQuote": true,
   "prettier.trailingComma": "all",
   "prettier.printWidth": 100,
-
-
   "workbench.iconTheme": "material-icon-theme",
-  "workbench.colorTheme": "Dracula Theme",
+  "workbench.colorTheme": "Winter is Coming (Dark Blue)",
   "workbench.startupEditor": "none",
   "workbench.tree.renderIndentGuides": "always",
   "breadcrumbs.enabled": true,
-
-
   "editor.quickSuggestions": {
     "strings": true
   },
   "editor.suggest.snippetsPreventQuickSuggestions": false,
   "editor.inlineSuggest.enabled": true,
   "editor.suggest.preview": true,
-
-
   "telemetry.telemetryLevel": "off",
   "update.mode": "manual",
   "extensions.autoCheckUpdates": false,

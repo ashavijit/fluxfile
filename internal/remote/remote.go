@@ -98,7 +98,6 @@ func (r *Remote) getSSHAuth() ssh.AuthMethod {
 	return nil
 }
 
-// CopyFile copies a local file to the remote server using SCP
 func (r *Remote) CopyFile(localPath, remotePath string) error {
 	config := &ssh.ClientConfig{
 		User: r.user,
@@ -120,29 +119,25 @@ func (r *Remote) CopyFile(localPath, remotePath string) error {
 	}
 	defer session.Close()
 
-	// Read local file
 	content, err := os.ReadFile(localPath)
 	if err != nil {
 		return fmt.Errorf("failed to read local file: %w", err)
 	}
 
-	// Get file info for permissions
 	info, err := os.Stat(localPath)
 	if err != nil {
 		return fmt.Errorf("failed to stat local file: %w", err)
 	}
 
-	// Set up stdin pipe
 	stdin, err := session.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("failed to create stdin pipe: %w", err)
 	}
 
-	// Start scp command on remote
 	go func() {
 		defer stdin.Close()
 		fmt.Fprintf(stdin, "C%04o %d %s\n", info.Mode().Perm(), len(content), remotePath)
-		stdin.Write(content)
+		_, _ = stdin.Write(content)
 		fmt.Fprint(stdin, "\x00")
 	}()
 

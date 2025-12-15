@@ -7,7 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2025-12-15
+
+### Added
+
+#### CI/CD Pipeline
+- GitHub Actions CI workflow with matrix testing (Go 1.21-1.23, Linux/macOS/Windows)
+- golangci-lint integration for code quality
+- Codecov coverage reporting
+- `.golangci.yml` configuration file
+
+#### Project Configuration
+- **`.fluxconfig`** - Project-level configuration file support
+  - `default_profile` - Default profile to apply
+  - `cache_dir` - Custom cache directory
+  - `log_dir` - Custom log directory
+  - `verbosity` - Log level (quiet/normal/verbose)
+  - `parallel` - Default parallel execution
+  - `env` - Global environment variables
+
+#### Test Coverage
+- Added executor package tests (350+ lines)
+- Added cache package tests
+- Added docker package tests
+- Added remote package tests
+- Added lock package tests
+- Added watcher package tests
+- Added config package tests
+
+#### Remote Execution
+- Implemented `CopyFile` for SCP file transfers
+- Multi-key SSH auth support (id_rsa, id_ed25519, Windows paths)
+
+### Changed
+- README badges (CI, Go Report, License, Go Version)
+- Fixed `execLookPath` stub - now uses `exec.LookPath`
+- Improved error handling in cache with warnings instead of silent failures
+
+### Fixed
+- Fixed empty else branch in lexer (staticcheck SA9003)
+- Fixed unchecked error return in remote.go (errcheck)
+- Fixed paramTypeCombine warnings in lock.go
+
 ## [2.2.0] - 2025-12-05
+
 
 ### Added
 
