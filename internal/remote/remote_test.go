@@ -72,19 +72,16 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestCopyFileNotImplemented(t *testing.T) {
+func TestCopyFileLocalNotFound(t *testing.T) {
 	r, err := New("user@host")
 	if err != nil {
 		t.Fatalf("Failed to create Remote: %v", err)
 	}
 
-	err = r.CopyFile("/local/path", "/remote/path")
+	// CopyFile should fail when local file doesn't exist
+	err = r.CopyFile("/nonexistent/local/path", "/remote/path")
 	if err == nil {
-		t.Error("Expected error for unimplemented CopyFile")
-	}
-
-	if err.Error() != "file copy not implemented yet" {
-		t.Errorf("Unexpected error message: %v", err)
+		t.Error("Expected error for non-existent local file")
 	}
 }
 

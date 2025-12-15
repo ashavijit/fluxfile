@@ -1,5 +1,10 @@
 # FluxFile
 
+[![CI](https://github.com/ashavijit/fluxfile/actions/workflows/ci.yaml/badge.svg)](https://github.com/ashavijit/fluxfile/actions/workflows/ci.yaml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ashavijit/fluxfile)](https://goreportcard.com/report/github.com/ashavijit/fluxfile)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/ashavijit/fluxfile)](https://go.dev/)
+
 Modern task runner and build automation tool with a clean, minimal syntax.
 
 ## Features
