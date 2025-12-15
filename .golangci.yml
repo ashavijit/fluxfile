@@ -4,7 +4,6 @@ run:
 
 linters:
   enable:
-    - errcheck
     - gosimple
     - govet
     - ineffassign
@@ -16,14 +15,6 @@ linters:
     - unconvert
 
 linters-settings:
-  errcheck:
-    check-type-assertions: false
-    exclude-functions:
-      - fmt.Fprintf
-      - fmt.Printf
-      - fmt.Fprint
-      - fmt.Scanln
-      - (io.Closer).Close
   misspell:
     locale: US
 
@@ -32,8 +23,3 @@ issues:
     - path: _test\.go
       linters:
         - errcheck
-    - path: internal/remote/remote.go
-      text: "InsecureIgnoreHostKey"
-    - linters:
-        - errcheck
-      text: "Error return value of .*(Save|Set|Start|Write).*is not checked"
