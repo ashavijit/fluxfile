@@ -148,7 +148,7 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 	if task.Prompt != "" {
 		fmt.Printf("%s [y/N]: ", task.Prompt)
 		var response string
-		fmt.Scanln(&response)
+		_, _ = fmt.Scanln(&response)
 		if strings.ToLower(response) != "y" {
 			return fmt.Errorf("task aborted by user")
 		}
@@ -204,7 +204,7 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 				Duration:  duration,
 				Timestamp: time.Now(),
 			}
-			e.cache.Set(entry)
+			_ = e.cache.Set(entry)
 		} else if len(task.Watch) > 0 {
 			hash, _ := cache.HashFiles(task.Watch)
 			entry := &cache.CacheEntry{
@@ -214,7 +214,7 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 				Duration:  duration,
 				Timestamp: time.Now(),
 			}
-			e.cache.Set(entry)
+			_ = e.cache.Set(entry)
 		}
 	}
 
@@ -230,7 +230,7 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		if e.logStore != nil {
 			e.logStore.Log("info", fmt.Sprintf("Task completed in %v", duration))
 			e.logStore.EndTask(task.Name, true)
-			e.logStore.Save()
+			_ = e.logStore.Save()
 		}
 	} else {
 		e.logger.TaskFailed(task.Name, execErr)
@@ -240,7 +240,7 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		if e.logStore != nil {
 			e.logStore.Log("error", fmt.Sprintf("Task failed: %v", execErr))
 			e.logStore.EndTask(task.Name, false)
-			e.logStore.Save()
+			_ = e.logStore.Save()
 		}
 	}
 
@@ -263,7 +263,7 @@ func (e *Executor) sendNotification(title, message string) {
 	default:
 		cmd = exec.Command("notify-send", title, message)
 	}
-	cmd.Start()
+	_ = cmd.Start()
 }
 
 func (e *Executor) runCommand(command string, env map[string]string) error {
