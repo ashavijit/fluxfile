@@ -57,13 +57,13 @@ func (g *Graph) renderASCIINode(sb *strings.Builder, name string, prefix string,
 		return
 	}
 
-	// Calculate new prefix for children
-	newPrefix := prefix
-	if prefix == "" {
+	var newPrefix string
+	switch {
+	case prefix == "":
 		newPrefix = ""
-	} else if isLast {
+	case isLast:
 		newPrefix = prefix + "    "
-	} else {
+	default:
 		newPrefix = prefix + "│   "
 	}
 
