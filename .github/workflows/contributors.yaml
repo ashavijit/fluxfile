@@ -18,12 +18,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Generate comprehensive contributors file
+      - name: Generate contributors file
         run: |
           cat > CONTRIBUTORS.md << 'HEADER'
           <div align="center">
@@ -40,115 +35,102 @@ jobs:
 
           HEADER
 
-          # Generate contributor table with details
+          # Generate contributor table
           echo "| # | Avatar | Contributor | Commits | Lines Added | Lines Deleted |" >> CONTRIBUTORS.md
-          echo "|---|--------|-------------|---------|-------------|---------------|" >> CONTRIBUTORS.md
+          echo "|:-:|:------:|-------------|:-------:|:-----------:|:-------------:|" >> CONTRIBUTORS.md
 
           rank=1
-          git log --format='%aN|%aE' | sort | uniq -c | sort -rn | head -20 | while read count name_email; do
-            name=$(echo "$name_email" | cut -d'|' -f1)
-            email=$(echo "$name_email" | cut -d'|' -f2)
+          git shortlog -sne --all | head -10 | while IFS= read -r line; do
+            count=$(echo "$line" | awk '{print $1}')
+            # Extract email from <email> format
+            email=$(echo "$line" | grep -oP '(?<=<)[^>]+(?=>)')
+            name=$(echo "$line" | sed 's/^[[:space:]]*[0-9]*[[:space:]]*//' | sed 's/<.*//' | xargs)
 
-            # Get GitHub username from email or name
-            github_user=$(echo "$email" | cut -d'@' -f1 | sed 's/+.*//g')
+            # Try to get GitHub username
+            if [[ "$email" == *"@users.noreply.github.com"* ]]; then
+              github_user=$(echo "$email" | sed 's/@users.noreply.github.com//' | sed 's/^[0-9]*+//')
+            elif [[ "$email" == *"github-actions"* ]]; then
+              github_user="github-actions[bot]"
+            else
+              # Use name as fallback, replace spaces
+              github_user=$(echo "$name" | tr ' ' '-' | tr '[:upper:]' '[:lower:]')
+            fi
 
-            # Get lines added/deleted
-            stats=$(git log --author="$name" --pretty=tformat: --numstat | awk '{ add += $1; del += $2 } END { printf "%d|%d", add, del }')
+            # Get lines added/deleted for this author
+            stats=$(git log --author="$name" --pretty=tformat: --numstat 2>/dev/null | awk '{ add += $1; del += $2 } END { printf "%d|%d", add, del }')
             added=$(echo "$stats" | cut -d'|' -f1)
             deleted=$(echo "$stats" | cut -d'|' -f2)
 
             # Add medal for top 3
             medal=""
             case $rank in
-              1) medal="🥇" ;;
-              2) medal="🥈" ;;
-              3) medal="🥉" ;;
+              1) medal="🥇 " ;;
+              2) medal="🥈 " ;;
+              3) medal="🥉 " ;;
             esac
 
-            echo "| ${medal}${rank} | <img src=\"https://github.com/${github_user}.png\" width=\"40\" height=\"40\" style=\"border-radius:50%\"> | **[@${github_user}](https://github.com/${github_user})** | \`${count}\` | +${added:-0} | -${deleted:-0} |" >> CONTRIBUTORS.md
+            echo "| ${medal}${rank} | <img src=\"https://github.com/${github_user}.png\" width=\"40\" style=\"border-radius:50%\"> | **[@${github_user}](https://github.com/${github_user})** | ${count} | +${added:-0} | -${deleted:-0} |" >> CONTRIBUTORS.md
 
             rank=$((rank + 1))
           done
 
-          # Add commit activity section
-          cat >> CONTRIBUTORS.md << 'STATS'
+          # Add contribution pie chart
+          cat >> CONTRIBUTORS.md << 'PIE'
 
           ---
 
           ## 📊 Contribution Statistics
 
-          ### Commits Over Time
-
-          ```mermaid
-          %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#6366f1', 'primaryTextColor': '#fff', 'primaryBorderColor': '#818cf8', 'lineColor': '#818cf8', 'secondaryColor': '#4f46e5', 'tertiaryColor': '#312e81'}}}%%
-          xychart-beta
-              title "Monthly Commit Activity"
-              x-axis [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
-              y-axis "Commits" 0 --> 100
-          STATS
-
-          # Generate monthly commit data
-          echo -n "    bar [" >> CONTRIBUTORS.md
-          for month in 01 02 03 04 05 06 07 08 09 10 11 12; do
-            count=$(git log --since="2024-${month}-01" --until="2024-${month}-31" --oneline 2>/dev/null | wc -l)
-            echo -n "${count}, " >> CONTRIBUTORS.md
-          done
-          sed -i 's/, $/]/' CONTRIBUTORS.md
-          echo "" >> CONTRIBUTORS.md
-          echo '```' >> CONTRIBUTORS.md
-
-          # Add contribution breakdown pie chart
-          cat >> CONTRIBUTORS.md << 'PIE'
-
-          ### Contribution by Author
+          ### Commits by Author
 
           ```mermaid
           %%{init: {'theme': 'dark', 'themeVariables': { 'pie1': '#6366f1', 'pie2': '#8b5cf6', 'pie3': '#a855f7', 'pie4': '#d946ef', 'pie5': '#ec4899', 'pie6': '#f43f5e', 'pie7': '#f97316', 'pie8': '#eab308'}}}%%
           pie showData
-              title Commits by Contributor
+              title Commits Distribution
           PIE
 
           git shortlog -sn --all | head -8 | while read count name; do
-            echo "    \"$name\" : $count" >> CONTRIBUTORS.md
+            clean_name=$(echo "$name" | tr -d '"' | head -c 20)
+            echo "    \"$clean_name\" : $count" >> CONTRIBUTORS.md
           done
           echo '```' >> CONTRIBUTORS.md
 
-          # Add recent activity
+          # Add recent commits timeline
           cat >> CONTRIBUTORS.md << 'RECENT'
 
           ---
 
           ## 🕐 Recent Activity
 
-          ### Last 10 Commits
+          ### Last 15 Commits
 
           | Date | Author | Commit | Message |
-          |------|--------|--------|---------|
+          |:----:|--------|:------:|---------|
           RECENT
 
-          git log --pretty=format:'| %ad | **%an** | [`%h`](../../commit/%H) | %s |' --date=short -10 >> CONTRIBUTORS.md
+          git log --pretty=format:'| `%ad` | %an | [`%h`](../../commit/%H) | %s |' --date=short -15 >> CONTRIBUTORS.md
 
-          # Add code frequency
-          cat >> CONTRIBUTORS.md << 'FOOTER'
+          # Add commit timeline chart
+          cat >> CONTRIBUTORS.md << 'TIMELINE'
 
           ---
 
-          ## 📈 Code Frequency
+          ### Commit Timeline
 
           ```mermaid
-          %%{init: {'theme': 'dark'}}%%
-          gitGraph
-              options { "nodeSpacing": 100, "nodeRadius": 5 }
-          FOOTER
+          %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#6366f1'}}}%%
+          timeline
+              title Recent Development Activity
+          TIMELINE
 
-          # Add last 15 commits to git graph
-          git log --oneline -15 --reverse | while read hash msg; do
-            short_msg=$(echo "$msg" | head -c 25 | tr '"' "'")
-            echo "    commit id: \"${short_msg}\"" >> CONTRIBUTORS.md
+          # Group commits by date
+          git log --format='%ad' --date=short -30 | sort | uniq -c | tail -10 | while read count date; do
+            echo "    $date : $count commits" >> CONTRIBUTORS.md
           done
+          echo '```' >> CONTRIBUTORS.md
 
+          # Add footer
           cat >> CONTRIBUTORS.md << 'END'
-          ```
 
           ---
 
@@ -165,13 +147,14 @@ jobs:
 
           ---
 
-          *Auto-generated on $(date -u '+%Y-%m-%d %H:%M UTC')*
           END
+
+          echo "*Auto-generated on $(date -u '+%Y-%m-%d %H:%M UTC')*" >> CONTRIBUTORS.md
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add CONTRIBUTORS.md
-          git diff --staged --quiet || git commit -m "docs: update contributors with detailed stats"
+          git diff --staged --quiet || git commit -m "docs: update contributors"
           git push
