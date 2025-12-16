@@ -1,0 +1,17 @@
+# Linguist Language Entry for FluxFile
+# Copy this to lib/linguist/languages.yml (alphabetically under "F")
+
+FluxFile:
+  type: data
+  color: "#6366f1"
+  extensions:
+  - ".flux"
+  filenames:
+  - FluxFile
+  - Fluxfile
+  - fluxfile
+  tm_scope: source.fluxfile
+  ace_mode: yaml
+  codemirror_mode: yaml
+  codemirror_mime_type: text/x-yaml
+  language_id: 1090
