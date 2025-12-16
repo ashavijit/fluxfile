@@ -1,10 +1,13 @@
 package ast
 
 type FluxFile struct {
-	Vars     map[string]string
-	Tasks    []Task
-	Profiles []Profile
-	Includes []string
+	Vars      map[string]string
+	Tasks     []Task
+	Profiles  []Profile
+	Includes  []string
+	Templates []Template
+	Groups    []TaskGroup
+	Aliases   map[string]string
 }
 
 type Task struct {
@@ -31,6 +34,10 @@ type Task struct {
 	Timeout     string
 	Prompt      string
 	Notify      NotifyConfig
+	Alias       string
+	Extends     string
+	Before      []string
+	After       []string
 }
 
 type NotifyConfig struct {
@@ -50,6 +57,31 @@ type Profile struct {
 
 type Matrix struct {
 	Dimensions map[string][]string
+}
+
+type Template struct {
+	Name       string
+	Desc       string
+	Deps       []string
+	Env        map[string]string
+	Cache      bool
+	Inputs     []string
+	Outputs    []string
+	Parallel   bool
+	Docker     bool
+	Remote     string
+	Secrets    []string
+	Pre        []Precondition
+	Retries    int
+	RetryDelay string
+	Timeout    string
+	Before     []string
+	After      []string
+}
+
+type TaskGroup struct {
+	Name  string
+	Tasks []string
 }
 
 type Expr interface {
@@ -79,10 +111,13 @@ func (s *ShellExpr) exprNode()     {}
 
 func NewFluxFile() *FluxFile {
 	return &FluxFile{
-		Vars:     make(map[string]string),
-		Tasks:    []Task{},
-		Profiles: []Profile{},
-		Includes: []string{},
+		Vars:      make(map[string]string),
+		Tasks:     []Task{},
+		Profiles:  []Profile{},
+		Includes:  []string{},
+		Templates: []Template{},
+		Groups:    []TaskGroup{},
+		Aliases:   make(map[string]string),
 	}
 }
 
@@ -111,6 +146,10 @@ func NewTask(name string) Task {
 		Timeout:     "",
 		Prompt:      "",
 		Notify:      NotifyConfig{},
+		Alias:       "",
+		Extends:     "",
+		Before:      []string{},
+		After:       []string{},
 	}
 }
 
@@ -124,5 +163,36 @@ func NewProfile(name string) Profile {
 func NewMatrix() *Matrix {
 	return &Matrix{
 		Dimensions: make(map[string][]string),
+	}
+}
+
+// NewTemplate creates a new Template with default values
+func NewTemplate(name string) Template {
+	return Template{
+		Name:       name,
+		Desc:       "",
+		Deps:       []string{},
+		Env:        make(map[string]string),
+		Cache:      false,
+		Inputs:     []string{},
+		Outputs:    []string{},
+		Parallel:   false,
+		Docker:     false,
+		Remote:     "",
+		Secrets:    []string{},
+		Pre:        []Precondition{},
+		Retries:    0,
+		RetryDelay: "",
+		Timeout:    "",
+		Before:     []string{},
+		After:      []string{},
+	}
+}
+
+// NewTaskGroup creates a new TaskGroup with default values
+func NewTaskGroup(name string) TaskGroup {
+	return TaskGroup{
+		Name:  name,
+		Tasks: []string{},
 	}
 }
