@@ -22,7 +22,6 @@ func TestRenderASCII(t *testing.T) {
 
 	output := g.RenderASCII("")
 
-	// Should contain all task names
 	if !strings.Contains(output, "deploy") {
 		t.Error("Expected output to contain 'deploy'")
 	}
@@ -49,7 +48,6 @@ func TestRenderASCIIFiltered(t *testing.T) {
 
 	output := g.RenderASCII("build")
 
-	// Should contain build and its dep
 	if !strings.Contains(output, "build") {
 		t.Error("Expected output to contain 'build'")
 	}
@@ -71,7 +69,6 @@ func TestRenderDOT(t *testing.T) {
 
 	output := g.RenderDOT("")
 
-	// Should have DOT structure
 	if !strings.Contains(output, "digraph FluxFile") {
 		t.Error("Expected DOT digraph header")
 	}
@@ -96,7 +93,6 @@ func TestRenderMermaid(t *testing.T) {
 
 	output := g.RenderMermaid("")
 
-	// Should have Mermaid structure
 	if !strings.Contains(output, "```mermaid") {
 		t.Error("Expected Mermaid code block start")
 	}

@@ -29,13 +29,11 @@ $BIN_URL = "https://github.com/ashavijit/fluxfile/releases/latest/download/flux-
 $INSTALL_DIR = "$env:LOCALAPPDATA\flux"
 $BIN_PATH = "$INSTALL_DIR\flux.exe"
 
-# Create install directory
 if (!(Test-Path $INSTALL_DIR)) {
     Write-Step "[*]" "Creating installation directory..."
     New-Item -ItemType Directory -Path $INSTALL_DIR | Out-Null
 }
 
-# Remove old binary if exists
 if (Test-Path $BIN_PATH) {
     Write-Step "[!]" "Removing old version..." $Yellow
     try {
@@ -46,7 +44,6 @@ if (Test-Path $BIN_PATH) {
     }
 }
 
-# Download new binary
 Write-Step "[*]" "Downloading Flux ($OS-$ARCH)..."
 try {
     $ProgressPreference = 'SilentlyContinue'
@@ -57,7 +54,6 @@ try {
     exit 1
 }
 
-# Update PATH
 $USER_PATH = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($USER_PATH -notlike "*$INSTALL_DIR*") {
     Write-Step "[*]" "Adding flux to PATH..."
@@ -67,7 +63,6 @@ if ($USER_PATH -notlike "*$INSTALL_DIR*") {
     Write-Step "[OK]" "PATH already configured" $Green
 }
 
-# Verify installation
 Write-Host ""
 Write-Host "  $Green${Bold}=======================================$Reset"
 Write-Host "  $Green${Bold}       INSTALLATION COMPLETE           $Reset"
