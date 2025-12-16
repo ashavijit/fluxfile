@@ -30,15 +30,29 @@ Thank you for your interest in contributing to Flux!
 ```bash
 git clone https://github.com/ashavijit/fluxfile
 cd fluxfile
-go build ./cmd/flux
-./flux -v
+flux build
+./bin/fluxfile -v
 ```
 
 ### Running Tests
 
+### Running Tests
+
 ```bash
-go test ./... -v
+flux test
 ```
+
+
+### Git Hooks
+
+To ensure code quality, we use git hooks to run linting and tests before pushing checks.
+Please run the following command to set up the hooks:
+
+```bash
+flux setup-hooks
+```
+
+This will install a pre-push hook that runs `go fmt`, `golangci-lint`, and `go test` before you push your changes.
 
 ## License
 

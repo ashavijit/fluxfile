@@ -1,4 +1,6 @@
 var PROJECT = fluxfile
+var VERSION = $(shell "git describe --tags --always --dirty")
+
 
 task fmt:
     desc: Format code
@@ -22,7 +24,7 @@ task build:
     outputs:
         bin/${PROJECT}
     run:
-        go build -o bin/${PROJECT} ./cmd/${PROJECT}
+        go build -ldflags "-X main.version=${VERSION}" -o bin/${PROJECT} ./cmd/${PROJECT}
 
 task test:
     desc: Run all tests
@@ -69,8 +71,29 @@ task parallel-all:
     desc: Run tasks in parallel
     deps: task1, task2, task3
     parallel: true
+
     run:
         echo "All parallel tasks complete!"
+
+task mod:
+    desc: Download and tidy entries
+    run:
+        go mod tidy
+        go mod download
+
+task setup-hooks:
+    desc: Install git hooks
+    run:
+        chmod +x scripts/setup-hooks.sh
+        ./scripts/setup-hooks.sh
+
+task build-all:
+    desc: Cross-compile for multiple platforms
+    matrix:
+        os: linux, darwin, windows
+        arch: amd64, arm64
+    run:
+        GOOS=${os} GOARCH=${arch} go build -ldflags "-X main.version=${VERSION}" -o dist/${PROJECT}-${os}-${arch} ./cmd/${PROJECT}
 
 
 profile dev:

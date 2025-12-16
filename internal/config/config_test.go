@@ -43,7 +43,6 @@ func TestDefaultConfig(t *testing.T) {
 }
 
 func TestLoadConfigNotFound(t *testing.T) {
-	// Change to temp dir where no config exists
 	dir := t.TempDir()
 	originalDir, _ := os.Getwd()
 	defer os.Chdir(originalDir)
@@ -54,7 +53,6 @@ func TestLoadConfigNotFound(t *testing.T) {
 		t.Fatalf("LoadConfig should not error when no config exists: %v", err)
 	}
 
-	// Should return defaults when no config file exists
 	if config.CacheDir != ".flux/cache" {
 		t.Errorf("Expected default CacheDir, got %s", config.CacheDir)
 	}
@@ -66,7 +64,6 @@ func TestLoadConfigFromFile(t *testing.T) {
 	defer os.Chdir(originalDir)
 	os.Chdir(dir)
 
-	// Create a config file
 	configContent := `{
   "default_profile": "prod",
   "cache_dir": "custom/cache",

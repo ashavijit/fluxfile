@@ -39,13 +39,11 @@ func (l *Lexer) readChar() {
 }
 
 func (l *Lexer) NextToken() Token {
-	// Handle pending dedents first (may need to emit multiple DEDENTs)
 	if l.pendingDedent > 0 {
 		l.pendingDedent--
 		return Token{Type: DEDENT, Literal: "", Line: l.line, Column: 0}
 	}
 
-	// Handle line start indentation
 	if l.IsAtLineStart() {
 		if tok, cont := l.handleLineStart(); !cont {
 			return tok
