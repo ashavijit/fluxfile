@@ -12,9 +12,9 @@
 
 | # | Avatar | Contributor | Commits | Lines Added | Lines Deleted |
 |:-:|:------:|-------------|:-------:|:-----------:|:-------------:|
-| 🥇 1 | <img src="https://github.com/ashavijit.png" width="40" style="border-radius:50%"> | **[@ashavijit](https://github.com/ashavijit)** | 59 | +14205 | -2027 |
+| 🥇 1 | <img src="https://github.com/ashavijit.png" width="40" style="border-radius:50%"> | **[@ashavijit](https://github.com/ashavijit)** | 60 | +14256 | -2027 |
 | 🥈 2 | <img src="https://github.com/avijit-sen.png" width="40" style="border-radius:50%"> | **[@avijit-sen](https://github.com/avijit-sen)** | 4 | +4 | -2 |
-| 🥉 3 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 2 | +0 | -0 |
+| 🥉 3 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 3 | +0 | -0 |
 
 ---
 
@@ -26,9 +26,9 @@
 %%{init: {'theme': 'dark', 'themeVariables': { 'pie1': '#6366f1', 'pie2': '#8b5cf6', 'pie3': '#a855f7', 'pie4': '#d946ef', 'pie5': '#ec4899', 'pie6': '#f43f5e', 'pie7': '#f97316', 'pie8': '#eab308'}}}%%
 pie showData
     title Commits Distribution
-    "ashavijit" : 59
+    "ashavijit" : 60
     "Avijit Sen" : 4
-    "github-actions[bot]" : 2
+    "github-actions[bot]" : 3
 ```
 
 ---
@@ -39,6 +39,8 @@ pie showData
 
 | Date | Author | Commit | Message |
 |:----:|--------|:------:|---------|
+| `2025-12-16` | ashavijit | [`408d84b`](../../commit/408d84b972a22c70010f17acd8f55000702d7aba) | feat: add GitHub Pages with Midnight theme |
+| `2025-12-16` | github-actions[bot] | [`25866b9`](../../commit/25866b99cb4920d6cbe492bd3c5fd51dae8aa2b9) | docs: update contributors |
 | `2025-12-16` | ashavijit | [`00e25ef`](../../commit/00e25ef08500e9f90661f1eb4cd6742093b14af9) | fix: correct Mermaid syntax and contributor username extraction |
 | `2025-12-16` | github-actions[bot] | [`7887556`](../../commit/788755699c814f0d33c59a2e4bb35221d53bcc12) | docs: update contributors with detailed stats |
 | `2025-12-16` | ashavijit | [`b0024a9`](../../commit/b0024a9791738daf07c9a5fd31e5a5499eddf045) | docs: enhanced contributors workflow with colorful charts and detailed stats |
@@ -52,8 +54,6 @@ pie showData
 | `2025-12-15` | ashavijit | [`cc76df2`](../../commit/cc76df21cd715de953a626cd6e10bfccec1fdf2f) | docs: revamp README with modern design, benchmarks, emoji headers |
 | `2025-12-15` | ashavijit | [`b8d9ad4`](../../commit/b8d9ad43db59540c37bde57c896820879017a953) | feat: add benchmark tests for lexer, parser, graph, executor, cache, ast |
 | `2025-12-15` | ashavijit | [`0bf19ae`](../../commit/0bf19ae053c071650aaa29419d9413d4c201ecd8) | fix: disable errcheck in CI workflow args |
-| `2025-12-15` | ashavijit | [`aa5edc4`](../../commit/aa5edc4b89e11b441035ba8e55d3994bd9027fac) | fix: check all error returns to pass errcheck linter |
-| `2025-12-15` | ashavijit | [`690822d`](../../commit/690822dcdbdcb04024655a2203b13c2ebf905ee4) | fix: disable errcheck linter to fix CI |
 ---
 
 ### Commit Timeline
@@ -62,10 +62,10 @@ pie showData
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#6366f1'}}}%%
 timeline
     title Recent Development Activity
-    2025-12-05 : 6 commits
+    2025-12-05 : 4 commits
     2025-12-10 : 3 commits
     2025-12-15 : 12 commits
-    2025-12-16 : 9 commits
+    2025-12-16 : 11 commits
 ```
 
 ---
@@ -83,4 +83,4 @@ Check out our [Contributing Guide](CONTRIBUTING.md) to get started!
 
 ---
 
-*Auto-generated on 2025-12-16 04:16 UTC*
+*Auto-generated on 2025-12-16 04:39 UTC*
