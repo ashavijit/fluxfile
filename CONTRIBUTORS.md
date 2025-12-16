@@ -13,8 +13,8 @@
 | # | Avatar | Contributor | Commits | Lines Added | Lines Deleted |
 |:-:|:------:|-------------|:-------:|:-----------:|:-------------:|
 | 🥇 1 | <img src="https://github.com/ashavijit.png" width="40" style="border-radius:50%"> | **[@ashavijit](https://github.com/ashavijit)** | 61 | +14489 | -2027 |
-| 🥈 2 | <img src="https://github.com/avijit-sen.png" width="40" style="border-radius:50%"> | **[@avijit-sen](https://github.com/avijit-sen)** | 4 | +4 | -2 |
-| 🥉 3 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 4 | +0 | -0 |
+| 🥈 2 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 5 | +0 | -0 |
+| 🥉 3 | <img src="https://github.com/avijit-sen.png" width="40" style="border-radius:50%"> | **[@avijit-sen](https://github.com/avijit-sen)** | 4 | +4 | -2 |
 
 ---
 
@@ -27,8 +27,8 @@
 pie showData
     title Commits Distribution
     "ashavijit" : 61
+    "github-actions[bot]" : 5
     "Avijit Sen" : 4
-    "github-actions[bot]" : 4
 ```
 
 ---
@@ -39,6 +39,7 @@ pie showData
 
 | Date | Author | Commit | Message |
 |:----:|--------|:------:|---------|
+| `2025-12-16` | github-actions[bot] | [`da0ddb8`](../../commit/da0ddb8b3aecbfe1f91464e464440bccfda6ea9b) | docs: update contributors |
 | `2025-12-16` | ashavijit | [`44e3934`](../../commit/44e393411f4141b23aaac688bb2dbd34783c0ad5) | feat: add FluxFile syntax highlighting grammar and gitattributes |
 | `2025-12-16` | github-actions[bot] | [`97a0e84`](../../commit/97a0e840b382bded035ca8d1c4023f5480a38ae5) | docs: update contributors |
 | `2025-12-16` | ashavijit | [`408d84b`](../../commit/408d84b972a22c70010f17acd8f55000702d7aba) | feat: add GitHub Pages with Midnight theme |
@@ -53,7 +54,6 @@ pie showData
 | `2025-12-16` | ashavijit | [`30c61f1`](../../commit/30c61f1d7af45d17d38a166711f289f570b525c4) | feat: add release infrastructure with checksums, Homebrew, and Scoop support |
 | `2025-12-16` | ashavijit | [`62bf3ec`](../../commit/62bf3ec588867f1169b117d2c4aab92379055574) | docs |
 | `2025-12-15` | ashavijit | [`802e610`](../../commit/802e61017e0a50e6ca1e9f5941944b4920ed0122) | feat: improve lock file with atomic writes, checksums, stale detection |
-| `2025-12-15` | ashavijit | [`cc76df2`](../../commit/cc76df21cd715de953a626cd6e10bfccec1fdf2f) | docs: revamp README with modern design, benchmarks, emoji headers |
 ---
 
 ### Commit Timeline
@@ -62,10 +62,10 @@ pie showData
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#6366f1'}}}%%
 timeline
     title Recent Development Activity
-    2025-12-05 : 2 commits
+    2025-12-05 : 1 commits
     2025-12-10 : 3 commits
     2025-12-15 : 12 commits
-    2025-12-16 : 13 commits
+    2025-12-16 : 14 commits
 ```
 
 ---
@@ -83,4 +83,4 @@ Check out our [Contributing Guide](CONTRIBUTING.md) to get started!
 
 ---
 
-*Auto-generated on 2025-12-16 04:50 UTC*
+*Auto-generated on 2025-12-16 04:59 UTC*
