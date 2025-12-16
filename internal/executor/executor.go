@@ -154,6 +154,17 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 		}
 	}
 
+	if len(task.Before) > 0 {
+		e.logger.Info(fmt.Sprintf("Running before hooks for %s", task.Name))
+		expandedBefore := vars.ExpandSlice(task.Before, taskVars)
+		for _, cmd := range expandedBefore {
+			if err := e.runCommand(cmd, taskVars); err != nil {
+				e.logger.TaskFailed(task.Name, fmt.Errorf("before hook failed: %w", err))
+				return fmt.Errorf("before hook failed: %w", err)
+			}
+		}
+	}
+
 	cached, inputHash := e.checkEnhancedCache(task, useCache)
 	if cached {
 		e.logger.TaskCached(task.Name)
@@ -223,6 +234,16 @@ func (e *Executor) executeTask(task *ast.Task, useCache bool) error {
 	}
 
 	if success {
+		if len(task.After) > 0 {
+			e.logger.Info(fmt.Sprintf("Running after hooks for %s", task.Name))
+			expandedAfter := vars.ExpandSlice(task.After, taskVars)
+			for _, cmd := range expandedAfter {
+				if err := e.runCommand(cmd, taskVars); err != nil {
+					e.logger.Warn(fmt.Sprintf("after hook failed: %v", err))
+				}
+			}
+		}
+
 		e.logger.TaskComplete(task.Name, duration)
 		if task.Notify.Success != "" {
 			e.sendNotification("Flux Task Success", task.Notify.Success)

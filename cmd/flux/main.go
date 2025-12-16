@@ -116,6 +116,8 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	executor.ExpandTemplates(fluxFile)
+
 	cacheDir := filepath.Join(".flux", "cache")
 	exec, err := executor.New(fluxFile, cacheDir, *dryRun)
 	if err != nil {
@@ -134,12 +136,16 @@ func main() {
 	if *listTasks {
 		tasks := exec.ListTasks()
 		fmt.Println("Available tasks:")
-		for _, task := range tasks {
-			taskInfo, _ := exec.GetTaskInfo(task)
+		for _, taskItem := range tasks {
+			taskInfo, _ := exec.GetTaskInfo(taskItem)
+			aliasStr := ""
+			if taskInfo != nil && taskInfo.Alias != "" {
+				aliasStr = fmt.Sprintf(" (alias: %s)", taskInfo.Alias)
+			}
 			if taskInfo != nil && taskInfo.Desc != "" {
-				fmt.Printf("  %-20s %s\n", task, taskInfo.Desc)
+				fmt.Printf("  %-20s %s%s\n", taskItem, taskInfo.Desc, aliasStr)
 			} else {
-				fmt.Printf("  - %s\n", task)
+				fmt.Printf("  - %s%s\n", taskItem, aliasStr)
 			}
 		}
 		return
@@ -152,6 +158,8 @@ func main() {
 			log.Fatal("No task specified. Use -t <task> or provide task name as argument")
 		}
 	}
+
+	*taskName = executor.ResolveAlias(fluxFile, *taskName)
 
 	task, err := exec.GetTaskInfo(*taskName)
 	if err != nil {
