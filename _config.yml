@@ -1,0 +1,6 @@
+theme: jekyll-theme-midnight
+title: FluxFile
+description: Modern task runner and build automation tool with a clean, minimal syntax.
+logo: https://raw.githubusercontent.com/ashavijit/fluxfile/main/assets/logo.png
+show_downloads: true
+google_analytics:
