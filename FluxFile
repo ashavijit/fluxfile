@@ -26,6 +26,12 @@ task build:
     run:
         go build -ldflags "-X main.version=${VERSION}" -o bin/${PROJECT} ./cmd/${PROJECT}
 
+task install:
+    desc: Install the binary
+    deps: build
+    run:
+        cp bin/${PROJECT} /usr/local/bin/${PROJECT}
+
 task test:
     desc: Run all tests
     deps: build

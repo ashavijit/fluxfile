@@ -10,6 +10,7 @@
   <a href="https://goreportcard.com/report/github.com/ashavijit/fluxfile"><img src="https://goreportcard.com/badge/github.com/ashavijit/fluxfile" alt="Go Report Card"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://go.dev/"><img src="https://img.shields.io/github/go-mod/go-version/ashavijit/fluxfile" alt="Go Version"></a>
+  <a href="https://github.com/ashavijit/fluxfile"><img src="https://img.shields.io/badge/built%20with-FluxFile-blueviolet" alt="Built with FluxFile"></a>
 </p>
 
 ---
@@ -85,7 +86,7 @@ Get-FileHash flux-*.zip | Format-List
 ### From Source
 
 ```bash
-git clone https://github.com/ashavijit/fluxfile && cd fluxfile && make install
+git clone https://github.com/ashavijit/fluxfile && cd fluxfile && flux install
 ```
 
 
@@ -669,8 +670,8 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ```bash
 git clone https://github.com/ashavijit/fluxfile
 cd fluxfile
-make test
-make build
+flux test
+flux build
 ```
 
 ---
