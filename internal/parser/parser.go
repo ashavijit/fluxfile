@@ -61,6 +61,9 @@ func (p *Parser) Parse() (*ast.FluxFile, error) {
 			task := p.parseTask()
 			if task.Name != "" {
 				fluxFile.Tasks = append(fluxFile.Tasks, task)
+				if task.Alias != "" {
+					fluxFile.Aliases[task.Alias] = task.Name
+				}
 			}
 		case lexer.PROFILE:
 			profile := p.parseProfile()
@@ -71,6 +74,16 @@ func (p *Parser) Parse() (*ast.FluxFile, error) {
 			include := p.parseInclude()
 			if include != "" {
 				fluxFile.Includes = append(fluxFile.Includes, include)
+			}
+		case lexer.TEMPLATE:
+			template := p.parseTemplate()
+			if template.Name != "" {
+				fluxFile.Templates = append(fluxFile.Templates, template)
+			}
+		case lexer.GROUP:
+			group := p.parseTaskGroup()
+			if group.Name != "" {
+				fluxFile.Groups = append(fluxFile.Groups, group)
 			}
 		case lexer.EOF:
 			return fluxFile, nil
@@ -228,7 +241,8 @@ func (p *Parser) parseTaskBody(task *ast.Task) {
 		}
 
 		if p.currentToken.Type == lexer.TASK || p.currentToken.Type == lexer.PROFILE ||
-			p.currentToken.Type == lexer.VAR || p.currentToken.Type == lexer.INCLUDE {
+			p.currentToken.Type == lexer.VAR || p.currentToken.Type == lexer.INCLUDE ||
+			p.currentToken.Type == lexer.TEMPLATE || p.currentToken.Type == lexer.GROUP {
 			break
 		}
 
@@ -277,6 +291,14 @@ func (p *Parser) parseTaskBody(task *ast.Task) {
 			task.Prompt = p.parsePrompt()
 		case lexer.NOTIFY:
 			task.Notify = p.parseNotify()
+		case lexer.ALIAS:
+			task.Alias = p.parseAlias()
+		case lexer.EXTENDS:
+			task.Extends = p.parseExtends()
+		case lexer.BEFORE:
+			task.Before = p.parseBefore()
+		case lexer.AFTER:
+			task.After = p.parseAfter()
 		default:
 			p.nextToken()
 		}

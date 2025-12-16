@@ -239,3 +239,151 @@ func (p *Parser) parseWatchIgnore() []string {
 
 	return patterns
 }
+
+// parseAlias parses the alias directive for a task.
+// Allows creating shorthand names for tasks.
+//
+// Syntax: alias: b
+func (p *Parser) parseAlias() string {
+	p.nextToken()
+
+	if p.currentToken.Type != lexer.COLON {
+		p.addError("expected : after alias")
+		return ""
+	}
+
+	p.nextToken()
+
+	switch p.currentToken.Type {
+	case lexer.STRING, lexer.IDENT:
+		val := p.currentToken.Literal
+		p.nextToken()
+		return val
+	}
+
+	return ""
+}
+
+// parseExtends parses the extends directive for a task.
+// Specifies which template the task inherits from.
+//
+// Syntax: extends: base-template
+func (p *Parser) parseExtends() string {
+	p.nextToken()
+
+	if p.currentToken.Type != lexer.COLON {
+		p.addError("expected : after extends")
+		return ""
+	}
+
+	p.nextToken()
+
+	switch p.currentToken.Type {
+	case lexer.STRING, lexer.IDENT:
+		val := p.currentToken.Literal
+		p.nextToken()
+		return val
+	}
+
+	return ""
+}
+
+// parseBefore parses the before hook commands.
+// These commands run before the main task commands.
+//
+// Syntax:
+//
+//	before:
+//	    echo "Starting..."
+//	    git pull
+func (p *Parser) parseBefore() []string {
+	p.nextToken()
+
+	if p.currentToken.Type != lexer.COLON {
+		p.addError("expected : after before")
+		return []string{}
+	}
+
+	p.nextToken()
+	p.skipNewlines()
+
+	if p.currentToken.Type == lexer.INDENT {
+		p.nextToken()
+	}
+
+	var commands []string
+
+	for p.currentToken.Type != lexer.DEDENT && p.currentToken.Type != lexer.EOF {
+		p.skipNewlines()
+
+		if p.currentToken.Type == lexer.DEDENT || p.currentToken.Type == lexer.EOF {
+			break
+		}
+
+		if p.currentToken.Type == lexer.RUN || p.currentToken.Type == lexer.AFTER ||
+			p.currentToken.Type == lexer.DEPS || p.currentToken.Type == lexer.ENV {
+			break
+		}
+
+		command := p.parseCommand()
+		if command != "" {
+			commands = append(commands, command)
+		}
+	}
+
+	if p.currentToken.Type == lexer.DEDENT {
+		p.nextToken()
+	}
+
+	return commands
+}
+
+// parseAfter parses the after hook commands.
+// These commands run after the main task commands complete successfully.
+//
+// Syntax:
+//
+//	after:
+//	    echo "Completed!"
+//	    notify-send "Done"
+func (p *Parser) parseAfter() []string {
+	p.nextToken()
+
+	if p.currentToken.Type != lexer.COLON {
+		p.addError("expected : after after")
+		return []string{}
+	}
+
+	p.nextToken()
+	p.skipNewlines()
+
+	if p.currentToken.Type == lexer.INDENT {
+		p.nextToken()
+	}
+
+	var commands []string
+
+	for p.currentToken.Type != lexer.DEDENT && p.currentToken.Type != lexer.EOF {
+		p.skipNewlines()
+
+		if p.currentToken.Type == lexer.DEDENT || p.currentToken.Type == lexer.EOF {
+			break
+		}
+
+		if p.currentToken.Type == lexer.RUN || p.currentToken.Type == lexer.BEFORE ||
+			p.currentToken.Type == lexer.DEPS || p.currentToken.Type == lexer.ENV {
+			break
+		}
+
+		command := p.parseCommand()
+		if command != "" {
+			commands = append(commands, command)
+		}
+	}
+
+	if p.currentToken.Type == lexer.DEDENT {
+		p.nextToken()
+	}
+
+	return commands
+}
