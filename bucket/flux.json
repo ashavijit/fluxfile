@@ -1,0 +1,26 @@
+{
+    "version": "VERSION_PLACEHOLDER",
+    "description": "Modern task runner and build automation tool with clean, minimal syntax",
+    "homepage": "https://github.com/ashavijit/fluxfile",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/ashavijit/fluxfile/releases/download/VERSION_PLACEHOLDER/flux-VERSION_PLACEHOLDER-windows-amd64.zip",
+            "hash": "SHA256_WINDOWS_AMD64_PLACEHOLDER",
+            "bin": "flux-windows-amd64.exe"
+        }
+    },
+    "bin": [
+        ["flux-windows-amd64.exe", "flux"]
+    ],
+    "checkver": {
+        "github": "https://github.com/ashavijit/fluxfile"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/ashavijit/fluxfile/releases/download/$version/flux-$version-windows-amd64.zip"
+            }
+        }
+    }
+}

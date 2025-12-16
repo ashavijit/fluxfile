@@ -1,14 +1,23 @@
 {
   "version": "2.0",
-  "generated": "2025-12-03T12:09:53.8462673+05:30",
+  "generated": "2025-12-15T17:43:56.2991994+05:30",
   "metadata": {
     "fluxfile_path": "FluxFile",
     "hostname": "Avijit",
     "user": "aviji",
-    "go_version": "go1.24.1",
+    "flux_version": "1.0.0",
     "os": "windows",
     "arch": "amd64"
   },
-  "fluxfile_hash": "a1aa4309a9d6bc1b6ea9e8e1392d880b27a29e7b9e0b3c6e11b4a973ee7e148a",
-  "tasks": {}
+  "fluxfile_hash": "2960d91b5c0f909ba261a88fce32c1c97b326519146b81ec9fba99b1ca0d8b9f",
+  "tasks": {
+    "build": {
+      "config_hash": "6e5be9c649e7424cf9cfdca6bca02dde08e626a426c3c0d10a4deb732e1616f7",
+      "command_hash": "e4da1d2bb90653eb1b95bfd99e75f6a09271ba180bcc92b0a4cea773d5b001c4",
+      "inputs": {},
+      "outputs": {},
+      "hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "last_updated": "2025-12-15T17:43:56.2991994+05:30"
+    }
+  }
 }
