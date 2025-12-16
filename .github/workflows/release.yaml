@@ -111,51 +111,21 @@ jobs:
           name: flux-binaries-${{ steps.version.outputs.VERSION }}
           path: dist/
 
-  update-homebrew:
-    name: Update Homebrew Formula
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+  # NOTE: To enable automatic Homebrew tap updates:
+  # 1. Create repo: ashavijit/homebrew-tap
+  # 2. Add secret HOMEBREW_TAP_TOKEN (PAT with repo scope)
+  # 3. Uncomment the update-homebrew job below
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Get version
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: Wait for release assets
-        run: sleep 30
-
-      - name: Download and compute checksums
-        id: checksums
-        run: |
-          VERSION="${{ steps.version.outputs.VERSION }}"
-          BASE_URL="https://github.com/ashavijit/fluxfile/releases/download/${VERSION}"
-
-          # Download archives
-          curl -sLO "${BASE_URL}/flux-${VERSION}-darwin-amd64.tar.gz"
-          curl -sLO "${BASE_URL}/flux-${VERSION}-darwin-arm64.tar.gz"
-          curl -sLO "${BASE_URL}/flux-${VERSION}-linux-amd64.tar.gz"
-          curl -sLO "${BASE_URL}/flux-${VERSION}-linux-arm64.tar.gz"
-
-          # Compute checksums
-          echo "DARWIN_AMD64_SHA=$(sha256sum flux-${VERSION}-darwin-amd64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-          echo "DARWIN_ARM64_SHA=$(sha256sum flux-${VERSION}-darwin-arm64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-          echo "LINUX_AMD64_SHA=$(sha256sum flux-${VERSION}-linux-amd64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-          echo "LINUX_ARM64_SHA=$(sha256sum flux-${VERSION}-linux-arm64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-
-      - name: Update Homebrew tap
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          repository: ashavijit/homebrew-tap
-          event-type: update-formula
-          client-payload: |
-            {
-              "version": "${{ steps.version.outputs.VERSION }}",
-              "darwin_amd64_sha": "${{ steps.checksums.outputs.DARWIN_AMD64_SHA }}",
-              "darwin_arm64_sha": "${{ steps.checksums.outputs.DARWIN_ARM64_SHA }}",
-              "linux_amd64_sha": "${{ steps.checksums.outputs.LINUX_AMD64_SHA }}",
-              "linux_arm64_sha": "${{ steps.checksums.outputs.LINUX_ARM64_SHA }}"
-            }
+  # update-homebrew:
+  #   name: Update Homebrew Formula
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   if: startsWith(github.ref, 'refs/tags/')
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Update Homebrew tap
+  #       uses: peter-evans/repository-dispatch@v3
+  #       with:
+  #         token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+  #         repository: ashavijit/homebrew-tap
+  #         event-type: update-formula
