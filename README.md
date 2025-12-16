@@ -28,6 +28,10 @@
 | 📊 **Matrix Builds** | Cross-compile for multiple platforms |
 | 📝 **Profiles** | Environment-specific configurations |
 | 📈 **Execution Reports** | Timing metrics and performance insights |
+| 🧩 **Templates** | Reusable task definitions with inheritance |
+| 📁 **Task Groups** | Organize related tasks under namespaces |
+| 🪝 **Lifecycle Hooks** | Before/after commands for task execution |
+| 🔤 **Task Aliases** | Shorthand names for frequently used tasks |
 
 ---
 
@@ -299,6 +303,87 @@ task name:
     matrix:
         os: linux, darwin, windows
         arch: amd64, arm64
+
+    # Task Aliases (NEW)
+    alias: b               # Short name for the task (run with `flux b`)
+
+    # Template Inheritance (NEW)
+    extends: base-template # Inherit from a template
+
+    # Lifecycle Hooks (NEW)
+    before:                # Commands run before main task
+        echo "Starting..."
+    after:                 # Commands run after successful completion
+        echo "Done!"
+```
+
+### Templates (NEW)
+
+Reusable task configurations that can be extended by tasks:
+
+```yaml
+template go-base:
+    cache: true
+    inputs:
+        **/*.go
+        go.mod
+    env:
+        CGO_ENABLED = 0
+
+task build:
+    extends: go-base
+    desc: Build the binary
+    run:
+        go build -o bin/app .
+```
+
+### Task Groups (NEW)
+
+Organize related tasks under a namespace:
+
+```yaml
+group frontend:
+    tasks: install, build, test
+
+task frontend:install:
+    run: npm ci
+
+task frontend:build:
+    deps: frontend:install
+    run: npm run build
+```
+
+### Task Aliases (NEW)
+
+Create shorthand names for frequently used tasks:
+
+```yaml
+task build:
+    alias: b
+    run: go build .
+
+task test:
+    alias: t
+    deps: build
+    run: go test ./...
+```
+
+Run with: `flux b` or `flux t`
+
+### Hooks (NEW)
+
+Execute commands before and after task execution:
+
+```yaml
+task deploy:
+    before:
+        echo "Validating deployment..."
+        git fetch origin
+    run:
+        docker-compose up -d
+    after:
+        echo "Deployment complete!"
+        curl -X POST https://webhook.example.com/notify
 ```
 
 ### Variables
