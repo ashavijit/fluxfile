@@ -1,0 +1,157 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "FluxFile",
+  "scopeName": "source.fluxfile",
+  "fileTypes": ["FluxFile", "fluxfile", "flux"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#variables" },
+    { "include": "#tasks" },
+    { "include": "#profiles" },
+    { "include": "#includes" },
+    { "include": "#keywords" },
+    { "include": "#strings" },
+    { "include": "#interpolation" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.hash.fluxfile",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "meta.variable.fluxfile",
+          "match": "^(var)\\s+([A-Z_][A-Z0-9_]*)\\s*(=)\\s*(.*)$",
+          "captures": {
+            "1": { "name": "keyword.other.var.fluxfile" },
+            "2": { "name": "variable.other.constant.fluxfile" },
+            "3": { "name": "keyword.operator.assignment.fluxfile" },
+            "4": { "name": "string.unquoted.fluxfile" }
+          }
+        }
+      ]
+    },
+    "tasks": {
+      "patterns": [
+        {
+          "name": "meta.task.fluxfile",
+          "begin": "^(task)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)\\s*(:)",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.task.fluxfile" },
+            "2": { "name": "entity.name.function.task.fluxfile" },
+            "3": { "name": "punctuation.separator.colon.fluxfile" }
+          },
+          "end": "^(?=\\S)",
+          "patterns": [
+            { "include": "#task-properties" },
+            { "include": "#comments" }
+          ]
+        }
+      ]
+    },
+    "task-properties": {
+      "patterns": [
+        {
+          "name": "meta.property.fluxfile",
+          "match": "^\\s+(desc|deps|parallel|if|cache|docker|remote|watch)\\s*(:)\\s*(.*)$",
+          "captures": {
+            "1": { "name": "keyword.other.property.fluxfile" },
+            "2": { "name": "punctuation.separator.colon.fluxfile" },
+            "3": { "name": "string.unquoted.value.fluxfile" }
+          }
+        },
+        {
+          "name": "meta.section.run.fluxfile",
+          "match": "^\\s+(run|env|inputs|outputs|ignore|matrix)\\s*(:)\\s*$",
+          "captures": {
+            "1": { "name": "keyword.control.section.fluxfile" },
+            "2": { "name": "punctuation.separator.colon.fluxfile" }
+          }
+        },
+        {
+          "name": "meta.command.fluxfile",
+          "match": "^\\s{8,}(.+)$",
+          "captures": {
+            "1": { "name": "string.unquoted.command.fluxfile" }
+          }
+        }
+      ]
+    },
+    "profiles": {
+      "patterns": [
+        {
+          "name": "meta.profile.fluxfile",
+          "begin": "^(profile)\\s+([a-zA-Z_][a-zA-Z0-9_-]*)\\s*(:)",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.profile.fluxfile" },
+            "2": { "name": "entity.name.type.profile.fluxfile" },
+            "3": { "name": "punctuation.separator.colon.fluxfile" }
+          },
+          "end": "^(?=\\S)",
+          "patterns": [
+            { "include": "#task-properties" }
+          ]
+        }
+      ]
+    },
+    "includes": {
+      "patterns": [
+        {
+          "name": "meta.include.fluxfile",
+          "match": "^(include)\\s+\"([^\"]+)\"",
+          "captures": {
+            "1": { "name": "keyword.control.import.fluxfile" },
+            "2": { "name": "string.quoted.double.fluxfile" }
+          }
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.fluxfile",
+          "match": "\\b(true|false)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.fluxfile",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "include": "#interpolation" }
+          ]
+        }
+      ]
+    },
+    "interpolation": {
+      "patterns": [
+        {
+          "name": "meta.interpolation.fluxfile",
+          "match": "(\\$\\{)([^}]+)(\\})",
+          "captures": {
+            "1": { "name": "punctuation.definition.interpolation.begin.fluxfile" },
+            "2": { "name": "variable.other.interpolation.fluxfile" },
+            "3": { "name": "punctuation.definition.interpolation.end.fluxfile" }
+          }
+        },
+        {
+          "name": "meta.shell-command.fluxfile",
+          "match": "(\\$\\(shell)\\s+\"([^\"]+)\"(\\))",
+          "captures": {
+            "1": { "name": "support.function.shell.fluxfile" },
+            "2": { "name": "string.quoted.shell-command.fluxfile" },
+            "3": { "name": "support.function.shell.fluxfile" }
+          }
+        }
+      ]
+    }
+  }
+}

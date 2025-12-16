@@ -1,0 +1,8 @@
+# Use YAML highlighting for FluxFile until GitHub adds native support
+FluxFile linguist-language=YAML
+FluxFile.* linguist-language=YAML
+*.flux linguist-language=YAML
+fluxfile linguist-language=YAML
+
+# Mark generated files
+CONTRIBUTORS.md linguist-generated=true
