@@ -51,6 +51,13 @@ const (
 
 	SHELL
 	DOLLAR
+
+	TEMPLATE
+	GROUP
+	BEFORE
+	AFTER
+	ALIAS
+	EXTENDS
 )
 
 var keywords = map[string]TokenType{
@@ -81,6 +88,12 @@ var keywords = map[string]TokenType{
 	"prompt":       PROMPT,
 	"notify":       NOTIFY,
 	"shell":        SHELL,
+	"template":     TEMPLATE,
+	"group":        GROUP,
+	"before":       BEFORE,
+	"after":        AFTER,
+	"alias":        ALIAS,
+	"extends":      EXTENDS,
 	"true":         IDENT,
 	"false":        IDENT,
 }
@@ -99,93 +112,60 @@ func LookupIdent(ident string) TokenType {
 	return IDENT
 }
 
+var tokenNames = map[TokenType]string{
+	ILLEGAL:      "ILLEGAL",
+	EOF:          "EOF",
+	COMMENT:      "COMMENT",
+	IDENT:        "IDENT",
+	STRING:       "STRING",
+	NUMBER:       "NUMBER",
+	NEWLINE:      "NEWLINE",
+	INDENT:       "INDENT",
+	DEDENT:       "DEDENT",
+	VAR:          "VAR",
+	TASK:         "TASK",
+	PROFILE:      "PROFILE",
+	INCLUDE:      "INCLUDE",
+	COLON:        "COLON",
+	COMMA:        "COMMA",
+	EQUALS:       "EQUALS",
+	LPAREN:       "LPAREN",
+	RPAREN:       "RPAREN",
+	DEPS:         "DEPS",
+	RUN:          "RUN",
+	ENV:          "ENV",
+	WATCH:        "WATCH",
+	MATRIX:       "MATRIX",
+	DOCKER:       "DOCKER",
+	REMOTE:       "REMOTE",
+	DESC:         "DESC",
+	PARALLEL:     "PARALLEL",
+	IF:           "IF",
+	CACHE:        "CACHE",
+	INPUTS:       "INPUTS",
+	OUTPUTS:      "OUTPUTS",
+	IGNORE:       "IGNORE",
+	PROFILE_TASK: "PROFILE_TASK",
+	SECRETS:      "SECRETS",
+	PRE:          "PRE",
+	RETRIES:      "RETRIES",
+	RETRY_DELAY:  "RETRY_DELAY",
+	TIMEOUT:      "TIMEOUT",
+	PROMPT:       "PROMPT",
+	NOTIFY:       "NOTIFY",
+	SHELL:        "SHELL",
+	DOLLAR:       "DOLLAR",
+	TEMPLATE:     "TEMPLATE",
+	GROUP:        "GROUP",
+	BEFORE:       "BEFORE",
+	AFTER:        "AFTER",
+	ALIAS:        "ALIAS",
+	EXTENDS:      "EXTENDS",
+}
+
 func (t TokenType) String() string {
-	switch t {
-	case ILLEGAL:
-		return "ILLEGAL"
-	case EOF:
-		return "EOF"
-	case COMMENT:
-		return "COMMENT"
-	case IDENT:
-		return "IDENT"
-	case STRING:
-		return "STRING"
-	case NUMBER:
-		return "NUMBER"
-	case NEWLINE:
-		return "NEWLINE"
-	case INDENT:
-		return "INDENT"
-	case DEDENT:
-		return "DEDENT"
-	case VAR:
-		return "VAR"
-	case TASK:
-		return "TASK"
-	case PROFILE:
-		return "PROFILE"
-	case INCLUDE:
-		return "INCLUDE"
-	case COLON:
-		return "COLON"
-	case COMMA:
-		return "COMMA"
-	case EQUALS:
-		return "EQUALS"
-	case LPAREN:
-		return "LPAREN"
-	case RPAREN:
-		return "RPAREN"
-	case DEPS:
-		return "DEPS"
-	case RUN:
-		return "RUN"
-	case ENV:
-		return "ENV"
-	case WATCH:
-		return "WATCH"
-	case MATRIX:
-		return "MATRIX"
-	case DOCKER:
-		return "DOCKER"
-	case REMOTE:
-		return "REMOTE"
-	case DESC:
-		return "DESC"
-	case PARALLEL:
-		return "PARALLEL"
-	case IF:
-		return "IF"
-	case CACHE:
-		return "CACHE"
-	case INPUTS:
-		return "INPUTS"
-	case OUTPUTS:
-		return "OUTPUTS"
-	case IGNORE:
-		return "IGNORE"
-	case PROFILE_TASK:
-		return "PROFILE_TASK"
-	case SECRETS:
-		return "SECRETS"
-	case PRE:
-		return "PRE"
-	case RETRIES:
-		return "RETRIES"
-	case RETRY_DELAY:
-		return "RETRY_DELAY"
-	case TIMEOUT:
-		return "TIMEOUT"
-	case PROMPT:
-		return "PROMPT"
-	case NOTIFY:
-		return "NOTIFY"
-	case SHELL:
-		return "SHELL"
-	case DOLLAR:
-		return "DOLLAR"
-	default:
-		return "UNKNOWN"
+	if name, ok := tokenNames[t]; ok {
+		return name
 	}
+	return "UNKNOWN"
 }

@@ -39,111 +39,130 @@ func (l *Lexer) readChar() {
 }
 
 func (l *Lexer) NextToken() Token {
-	for {
-		if l.pendingDedent > 0 {
-			l.pendingDedent--
-			return Token{Type: DEDENT, Literal: "", Line: l.line, Column: 0}
+	// Handle pending dedents first (may need to emit multiple DEDENTs)
+	if l.pendingDedent > 0 {
+		l.pendingDedent--
+		return Token{Type: DEDENT, Literal: "", Line: l.line, Column: 0}
+	}
+
+	// Handle line start indentation
+	if l.IsAtLineStart() {
+		if tok, cont := l.handleLineStart(); !cont {
+			return tok
+		} else if tok.Type != ILLEGAL {
+			return tok
 		}
+	}
 
-		if l.IsAtLineStart() {
-			indent := 0
-			for l.ch == ' ' {
-				indent++
-				l.readChar()
-			}
+	l.skipWhitespace()
 
-			if l.ch == '\n' || l.ch == '#' || l.ch == 0 {
-				if l.ch == '\n' {
-					l.line++
-					l.column = 0
-					l.readChar()
-					continue
-				} else if l.ch == '#' {
-					tok := Token{Type: COMMENT, Literal: l.readComment(), Line: l.line, Column: l.column}
-					return tok
-				}
-			}
+	tok := Token{Line: l.line, Column: l.column}
 
-			currentIndent := l.indentStack[len(l.indentStack)-1]
+	if t, ok := l.handleSpecialChar(); ok {
+		return t
+	}
 
-			if indent > currentIndent {
-				l.indentStack = append(l.indentStack, indent)
-				return Token{Type: INDENT, Literal: "", Line: l.line, Column: 0}
-			} else if indent < currentIndent {
-				for len(l.indentStack) > 1 && l.indentStack[len(l.indentStack)-1] > indent {
-					l.indentStack = l.indentStack[:len(l.indentStack)-1]
-					l.pendingDedent++
-				}
-				if l.pendingDedent > 0 {
-					l.pendingDedent--
-					return Token{Type: DEDENT, Literal: "", Line: l.line, Column: 0}
-				}
-			}
-		}
-
-		var tok Token
-
-		l.skipWhitespace()
-
-		tok.Line = l.line
-		tok.Column = l.column
-
-		switch l.ch {
-		case '\n':
-			tok = Token{Type: NEWLINE, Literal: string(l.ch), Line: l.line, Column: l.column}
-			l.line++
-			l.column = 0
-			l.readChar()
-			return tok
-		case '#':
-			tok.Type = COMMENT
-			tok.Literal = l.readComment()
-			return tok
-		case ':':
-			tok = Token{Type: COLON, Literal: string(l.ch), Line: l.line, Column: l.column}
-		case ',':
-			tok = Token{Type: COMMA, Literal: string(l.ch), Line: l.line, Column: l.column}
-		case '=':
-			tok = Token{Type: EQUALS, Literal: string(l.ch), Line: l.line, Column: l.column}
-		case '(':
-			tok = Token{Type: LPAREN, Literal: string(l.ch), Line: l.line, Column: l.column}
-		case ')':
-			tok = Token{Type: RPAREN, Literal: string(l.ch), Line: l.line, Column: l.column}
-		case '$':
-			tok = Token{Type: DOLLAR, Literal: string(l.ch), Line: l.line, Column: l.column}
-		case '"':
-			tok.Type = STRING
-			tok.Literal = l.readString()
-			return tok
-		case 0:
-			for len(l.indentStack) > 1 {
-				l.indentStack = l.indentStack[:len(l.indentStack)-1]
-				l.pendingDedent++
-			}
-			if l.pendingDedent > 0 {
-				l.pendingDedent--
-				return Token{Type: DEDENT, Literal: "", Line: l.line, Column: 0}
-			}
-			tok.Type = EOF
-			tok.Literal = ""
-			return tok
-		default:
-			if isLetter(l.ch) {
-				tok.Literal = l.readIdentifier()
-				tok.Type = LookupIdent(tok.Literal)
-				return tok
-			} else if isDigit(l.ch) {
-				tok.Type = NUMBER
-				tok.Literal = l.readNumber()
-				return tok
-			} else {
-				tok = Token{Type: ILLEGAL, Literal: string(l.ch), Line: l.line, Column: l.column}
-			}
-		}
-
+	switch l.ch {
+	case '\n':
+		tok = Token{Type: NEWLINE, Literal: string(l.ch), Line: l.line, Column: l.column}
+		l.line++
+		l.column = 0
 		l.readChar()
 		return tok
+	case '#':
+		tok.Type = COMMENT
+		tok.Literal = l.readComment()
+		return tok
+	case '"':
+		tok.Type = STRING
+		tok.Literal = l.readString()
+		return tok
+	case 0:
+		return l.handleEOF()
+	default:
+		if isLetter(l.ch) {
+			tok.Literal = l.readIdentifier()
+			tok.Type = LookupIdent(tok.Literal)
+			return tok
+		} else if isDigit(l.ch) {
+			tok.Type = NUMBER
+			tok.Literal = l.readNumber()
+			return tok
+		}
+		tok = Token{Type: ILLEGAL, Literal: string(l.ch), Line: l.line, Column: l.column}
 	}
+
+	l.readChar()
+	return tok
+}
+
+func (l *Lexer) handleLineStart() (Token, bool) {
+	indent := 0
+	for l.ch == ' ' {
+		indent++
+		l.readChar()
+	}
+
+	if l.ch == '\n' {
+		l.line++
+		l.column = 0
+		l.readChar()
+		return Token{}, true
+	}
+	if l.ch == '#' {
+		return Token{Type: COMMENT, Literal: l.readComment(), Line: l.line, Column: l.column}, false
+	}
+
+	currentIndent := l.indentStack[len(l.indentStack)-1]
+
+	if indent > currentIndent {
+		l.indentStack = append(l.indentStack, indent)
+		return Token{Type: INDENT, Literal: "", Line: l.line, Column: 0}, false
+	}
+	if indent < currentIndent {
+		for len(l.indentStack) > 1 && l.indentStack[len(l.indentStack)-1] > indent {
+			l.indentStack = l.indentStack[:len(l.indentStack)-1]
+			l.pendingDedent++
+		}
+		if l.pendingDedent > 0 {
+			l.pendingDedent--
+			return Token{Type: DEDENT, Literal: "", Line: l.line, Column: 0}, false
+		}
+	}
+
+	return Token{Type: ILLEGAL}, true
+}
+
+var simpleTokens = map[byte]TokenType{
+	':': COLON,
+	',': COMMA,
+	'=': EQUALS,
+	'(': LPAREN,
+	')': RPAREN,
+	'$': DOLLAR,
+}
+
+// handleSpecialChar handles simple single-character tokens
+func (l *Lexer) handleSpecialChar() (Token, bool) {
+	if tokenType, ok := simpleTokens[l.ch]; ok {
+		tok := Token{Type: tokenType, Literal: string(l.ch), Line: l.line, Column: l.column}
+		l.readChar()
+		return tok, true
+	}
+	return Token{}, false
+}
+
+// handleEOF handles end-of-file with pending dedents
+func (l *Lexer) handleEOF() Token {
+	for len(l.indentStack) > 1 {
+		l.indentStack = l.indentStack[:len(l.indentStack)-1]
+		l.pendingDedent++
+	}
+	if l.pendingDedent > 0 {
+		l.pendingDedent--
+		return Token{Type: DEDENT, Literal: "", Line: l.line, Column: 0}
+	}
+	return Token{Type: EOF, Literal: "", Line: l.line, Column: l.column}
 }
 
 func (l *Lexer) CheckIndentation() Token {
