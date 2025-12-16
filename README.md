@@ -31,7 +31,20 @@
 
 ---
 
-## 🚀 Quick Install
+## 🚀 Installation
+
+### Package Managers (Recommended)
+
+```bash
+# macOS / Linux (Homebrew)
+brew install ashavijit/tap/flux
+
+# Windows (Scoop)
+scoop bucket add flux https://github.com/ashavijit/fluxfile
+scoop install flux
+```
+
+### Quick Install Scripts
 
 ```bash
 # Linux / macOS
@@ -39,10 +52,38 @@ curl -fsSL https://raw.githubusercontent.com/ashavijit/fluxfile/main/scripts/ins
 
 # Windows (PowerShell)
 iwr -useb https://raw.githubusercontent.com/ashavijit/fluxfile/main/scripts/install.ps1 | iex
+```
 
-# From Source
+### Manual Download
+
+Download from [GitHub Releases](https://github.com/ashavijit/fluxfile/releases/latest):
+
+| Platform | Architecture | Download |
+|----------|--------------|----------|
+| Linux | x64 | `flux-vX.X.X-linux-amd64.tar.gz` |
+| Linux | ARM64 | `flux-vX.X.X-linux-arm64.tar.gz` |
+| macOS | Intel | `flux-vX.X.X-darwin-amd64.tar.gz` |
+| macOS | Apple Silicon | `flux-vX.X.X-darwin-arm64.tar.gz` |
+| Windows | x64 | `flux-vX.X.X-windows-amd64.zip` |
+
+**Verify checksums:**
+```bash
+# Download checksums file
+curl -sLO https://github.com/ashavijit/fluxfile/releases/latest/download/checksums.txt
+
+# Verify (Linux/macOS)
+sha256sum -c checksums.txt --ignore-missing
+
+# Verify (Windows PowerShell)
+Get-FileHash flux-*.zip | Format-List
+```
+
+### From Source
+
+```bash
 git clone https://github.com/ashavijit/fluxfile && cd fluxfile && make install
 ```
+
 
 ---
 

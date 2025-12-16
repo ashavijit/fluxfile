@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -12,11 +12,14 @@ on:
         default: 'latest'
 
 permissions:
-  contents: write 
+  contents: write
+
+env:
+  BINARY_NAME: flux
 
 jobs:
   build:
-    name: Build Flux for all platforms
+    name: Build & Release
     runs-on: ubuntu-latest
 
     steps:
@@ -25,9 +28,10 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: "1.24"
+          go-version: "1.22"
+          cache: true
 
       - name: Get version
         id: version
@@ -41,25 +45,117 @@ jobs:
       - name: Build binaries
         run: |
           mkdir -p dist
-          echo "Building Flux ${{ steps.version.outputs.VERSION }}"
-          GOOS=linux   GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-linux-amd64 ./cmd/flux
-          GOOS=linux   GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-linux-arm64 ./cmd/flux
-          GOOS=darwin  GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-darwin-amd64 ./cmd/flux
-          GOOS=darwin  GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-darwin-arm64 ./cmd/flux
-          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o dist/flux-windows-amd64.exe ./cmd/flux
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          LDFLAGS="-s -w -X main.version=${VERSION}"
+
+          echo "Building Flux ${VERSION}..."
+
+          # Linux
+          GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/flux-linux-amd64 ./cmd/flux
+          GOOS=linux GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/flux-linux-arm64 ./cmd/flux
+
+          # macOS
+          GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/flux-darwin-amd64 ./cmd/flux
+          GOOS=darwin GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/flux-darwin-arm64 ./cmd/flux
+
+          # Windows
+          GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/flux-windows-amd64.exe ./cmd/flux
+
           ls -la dist/
 
-      - name: Upload Release Files
+      - name: Create archives
+        run: |
+          cd dist
+          VERSION="${{ steps.version.outputs.VERSION }}"
+
+          # Linux archives
+          tar -czvf flux-${VERSION}-linux-amd64.tar.gz flux-linux-amd64
+          tar -czvf flux-${VERSION}-linux-arm64.tar.gz flux-linux-arm64
+
+          # macOS archives
+          tar -czvf flux-${VERSION}-darwin-amd64.tar.gz flux-darwin-amd64
+          tar -czvf flux-${VERSION}-darwin-arm64.tar.gz flux-darwin-arm64
+
+          # Windows archive
+          zip flux-${VERSION}-windows-amd64.zip flux-windows-amd64.exe
+
+          ls -la
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          VERSION="${{ steps.version.outputs.VERSION }}"
+
+          # Generate SHA256 checksums
+          sha256sum flux-${VERSION}-*.tar.gz flux-${VERSION}-*.zip > checksums.txt
+          sha256sum flux-linux-* flux-darwin-* flux-windows-* >> checksums.txt
+
+          echo "=== Checksums ==="
+          cat checksums.txt
+
+      - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.TOKENV1 }}
-          files: dist/*
           generate_release_notes: true
+          files: |
+            dist/flux-*
+            dist/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts (for manual runs)
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          name: flux-binaries
+          name: flux-binaries-${{ steps.version.outputs.VERSION }}
           path: dist/
+
+  update-homebrew:
+    name: Update Homebrew Formula
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Wait for release assets
+        run: sleep 30
+
+      - name: Download and compute checksums
+        id: checksums
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          BASE_URL="https://github.com/ashavijit/fluxfile/releases/download/${VERSION}"
+
+          # Download archives
+          curl -sLO "${BASE_URL}/flux-${VERSION}-darwin-amd64.tar.gz"
+          curl -sLO "${BASE_URL}/flux-${VERSION}-darwin-arm64.tar.gz"
+          curl -sLO "${BASE_URL}/flux-${VERSION}-linux-amd64.tar.gz"
+          curl -sLO "${BASE_URL}/flux-${VERSION}-linux-arm64.tar.gz"
+
+          # Compute checksums
+          echo "DARWIN_AMD64_SHA=$(sha256sum flux-${VERSION}-darwin-amd64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "DARWIN_ARM64_SHA=$(sha256sum flux-${VERSION}-darwin-arm64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "LINUX_AMD64_SHA=$(sha256sum flux-${VERSION}-linux-amd64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "LINUX_ARM64_SHA=$(sha256sum flux-${VERSION}-linux-arm64.tar.gz | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+      - name: Update Homebrew tap
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          repository: ashavijit/homebrew-tap
+          event-type: update-formula
+          client-payload: |
+            {
+              "version": "${{ steps.version.outputs.VERSION }}",
+              "darwin_amd64_sha": "${{ steps.checksums.outputs.DARWIN_AMD64_SHA }}",
+              "darwin_arm64_sha": "${{ steps.checksums.outputs.DARWIN_ARM64_SHA }}",
+              "linux_amd64_sha": "${{ steps.checksums.outputs.LINUX_AMD64_SHA }}",
+              "linux_arm64_sha": "${{ steps.checksums.outputs.LINUX_ARM64_SHA }}"
+            }
