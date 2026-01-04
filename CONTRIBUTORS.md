@@ -13,7 +13,7 @@
 | # | Avatar | Contributor | Commits | Lines Added | Lines Deleted |
 |:-:|:------:|-------------|:-------:|:-----------:|:-------------:|
 | 🥇 1 | <img src="https://github.com/ashavijit.png" width="40" style="border-radius:50%"> | **[@ashavijit](https://github.com/ashavijit)** | 71 | +14489 | -2027 |
-| 🥈 2 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 7 | +0 | -0 |
+| 🥈 2 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 8 | +0 | -0 |
 | 🥉 3 | <img src="https://github.com/avijit-sen.png" width="40" style="border-radius:50%"> | **[@avijit-sen](https://github.com/avijit-sen)** | 4 | +4 | -2 |
 
 ---
@@ -27,7 +27,7 @@
 pie showData
     title Commits Distribution
     "ashavijit" : 71
-    "github-actions[bot]" : 7
+    "github-actions[bot]" : 8
     "Avijit Sen" : 4
 ```
 
@@ -39,6 +39,7 @@ pie showData
 
 | Date | Author | Commit | Message |
 |:----:|--------|:------:|---------|
+| `2025-12-28` | github-actions[bot] | [`a591569`](../../commit/a591569cd40e4f1eae6037834b8d7637a1c7a0e0) | docs: update contributors |
 | `2025-12-21` | github-actions[bot] | [`77a52ef`](../../commit/77a52ef7603a0b51cd49a34b13ba9c119d172e28) | docs: update contributors |
 | `2025-12-16` | github-actions[bot] | [`950f168`](../../commit/950f168264e10af3502101ae6331d66d0f7a108f) | docs: update contributors |
 | `2025-12-16` | github-actions[bot] | [`da0ddb8`](../../commit/da0ddb8b3aecbfe1f91464e464440bccfda6ea9b) | docs: update contributors |
@@ -53,7 +54,6 @@ pie showData
 | `2025-12-16` | ashavijit | [`ec0cc79`](../../commit/ec0cc79855aef871940310983c83e798ebd3ab48) | ci: add contributors workflow with Mermaid graphs |
 | `2025-12-16` | ashavijit | [`45561c3`](../../commit/45561c30ed6f74c548522ad9ab6bc5cef67c47bb) | fix: disable Homebrew tap update (requires token setup) |
 | `2025-12-16` | ashavijit | [`7353e80`](../../commit/7353e802a8543267fd016a207b1fd2200d9f9d41) | Merge branch 'feature/improvements-v2.3' |
-| `2025-12-16` | ashavijit | [`30c61f1`](../../commit/30c61f1d7af45d17d38a166711f289f570b525c4) | feat: add release infrastructure with checksums, Homebrew, and Scoop support |
 ---
 
 ### Commit Timeline
@@ -62,10 +62,11 @@ pie showData
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#6366f1'}}}%%
 timeline
     title Recent Development Activity
-    2025-12-10 : 2 commits
+    2025-12-10 : 1 commits
     2025-12-15 : 12 commits
     2025-12-16 : 15 commits
     2025-12-21 : 1 commits
+    2025-12-28 : 1 commits
 ```
 
 ---
@@ -83,4 +84,4 @@ Check out our [Contributing Guide](CONTRIBUTING.md) to get started!
 
 ---
 
-*Auto-generated on 2025-12-28 01:03 UTC*
+*Auto-generated on 2026-01-04 01:03 UTC*
