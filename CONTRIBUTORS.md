@@ -13,7 +13,7 @@
 | # | Avatar | Contributor | Commits | Lines Added | Lines Deleted |
 |:-:|:------:|-------------|:-------:|:-----------:|:-------------:|
 | 🥇 1 | <img src="https://github.com/ashavijit.png" width="40" style="border-radius:50%"> | **[@ashavijit](https://github.com/ashavijit)** | 71 | +14489 | -2027 |
-| 🥈 2 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 11 | +0 | -0 |
+| 🥈 2 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 12 | +0 | -0 |
 | 🥉 3 | <img src="https://github.com/avijit-sen.png" width="40" style="border-radius:50%"> | **[@avijit-sen](https://github.com/avijit-sen)** | 4 | +4 | -2 |
 
 ---
@@ -27,7 +27,7 @@
 pie showData
     title Commits Distribution
     "ashavijit" : 71
-    "github-actions[bot]" : 11
+    "github-actions[bot]" : 12
     "Avijit Sen" : 4
 ```
 
@@ -39,6 +39,7 @@ pie showData
 
 | Date | Author | Commit | Message |
 |:----:|--------|:------:|---------|
+| `2026-01-25` | github-actions[bot] | [`627f653`](../../commit/627f6532509b441b7d1e8dedf7f11d62b16157ea) | docs: update contributors |
 | `2026-01-18` | github-actions[bot] | [`0aaeddc`](../../commit/0aaeddc162a2a2c55eddaeb12f88550bb433215d) | docs: update contributors |
 | `2026-01-11` | github-actions[bot] | [`606ad54`](../../commit/606ad54d183130b6427da6845bfc3bdd142f6412) | docs: update contributors |
 | `2026-01-04` | github-actions[bot] | [`5e1db43`](../../commit/5e1db43716da3dcad2942749365113068f696a97) | docs: update contributors |
@@ -53,7 +54,6 @@ pie showData
 | `2025-12-16` | ashavijit | [`00e25ef`](../../commit/00e25ef08500e9f90661f1eb4cd6742093b14af9) | fix: correct Mermaid syntax and contributor username extraction |
 | `2025-12-16` | github-actions[bot] | [`7887556`](../../commit/788755699c814f0d33c59a2e4bb35221d53bcc12) | docs: update contributors with detailed stats |
 | `2025-12-16` | ashavijit | [`b0024a9`](../../commit/b0024a9791738daf07c9a5fd31e5a5499eddf045) | docs: enhanced contributors workflow with colorful charts and detailed stats |
-| `2025-12-16` | github-actions[bot] | [`968f91e`](../../commit/968f91e1283ce274bb6a65a0a860c0c6ee0d7170) | docs: update contribution graph |
 ---
 
 ### Commit Timeline
@@ -62,13 +62,14 @@ pie showData
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#6366f1'}}}%%
 timeline
     title Recent Development Activity
-    2025-12-15 : 10 commits
+    2025-12-15 : 9 commits
     2025-12-16 : 15 commits
     2025-12-21 : 1 commits
     2025-12-28 : 1 commits
     2026-01-04 : 1 commits
     2026-01-11 : 1 commits
     2026-01-18 : 1 commits
+    2026-01-25 : 1 commits
 ```
 
 ---
@@ -86,4 +87,4 @@ Check out our [Contributing Guide](CONTRIBUTING.md) to get started!
 
 ---
 
-*Auto-generated on 2026-01-25 01:04 UTC*
+*Auto-generated on 2026-02-01 01:18 UTC*
