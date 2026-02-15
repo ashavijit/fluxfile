@@ -13,7 +13,7 @@
 | # | Avatar | Contributor | Commits | Lines Added | Lines Deleted |
 |:-:|:------:|-------------|:-------:|:-----------:|:-------------:|
 | 🥇 1 | <img src="https://github.com/ashavijit.png" width="40" style="border-radius:50%"> | **[@ashavijit](https://github.com/ashavijit)** | 71 | +14489 | -2027 |
-| 🥈 2 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 13 | +0 | -0 |
+| 🥈 2 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 14 | +0 | -0 |
 | 🥉 3 | <img src="https://github.com/avijit-sen.png" width="40" style="border-radius:50%"> | **[@avijit-sen](https://github.com/avijit-sen)** | 4 | +4 | -2 |
 
 ---
@@ -27,7 +27,7 @@
 pie showData
     title Commits Distribution
     "ashavijit" : 71
-    "github-actions[bot]" : 13
+    "github-actions[bot]" : 14
     "Avijit Sen" : 4
 ```
 
@@ -39,6 +39,7 @@ pie showData
 
 | Date | Author | Commit | Message |
 |:----:|--------|:------:|---------|
+| `2026-02-08` | github-actions[bot] | [`9eb75cf`](../../commit/9eb75cf4cbabc104325a65c183892069eed9809d) | docs: update contributors |
 | `2026-02-01` | github-actions[bot] | [`901ff8a`](../../commit/901ff8ab738569cff892b1b20d5a69e2571bc878) | docs: update contributors |
 | `2026-01-25` | github-actions[bot] | [`627f653`](../../commit/627f6532509b441b7d1e8dedf7f11d62b16157ea) | docs: update contributors |
 | `2026-01-18` | github-actions[bot] | [`0aaeddc`](../../commit/0aaeddc162a2a2c55eddaeb12f88550bb433215d) | docs: update contributors |
@@ -53,7 +54,6 @@ pie showData
 | `2025-12-16` | ashavijit | [`408d84b`](../../commit/408d84b972a22c70010f17acd8f55000702d7aba) | feat: add GitHub Pages with Midnight theme |
 | `2025-12-16` | github-actions[bot] | [`25866b9`](../../commit/25866b99cb4920d6cbe492bd3c5fd51dae8aa2b9) | docs: update contributors |
 | `2025-12-16` | ashavijit | [`00e25ef`](../../commit/00e25ef08500e9f90661f1eb4cd6742093b14af9) | fix: correct Mermaid syntax and contributor username extraction |
-| `2025-12-16` | github-actions[bot] | [`7887556`](../../commit/788755699c814f0d33c59a2e4bb35221d53bcc12) | docs: update contributors with detailed stats |
 ---
 
 ### Commit Timeline
@@ -62,7 +62,7 @@ pie showData
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#6366f1'}}}%%
 timeline
     title Recent Development Activity
-    2025-12-15 : 8 commits
+    2025-12-15 : 7 commits
     2025-12-16 : 15 commits
     2025-12-21 : 1 commits
     2025-12-28 : 1 commits
@@ -71,6 +71,7 @@ timeline
     2026-01-18 : 1 commits
     2026-01-25 : 1 commits
     2026-02-01 : 1 commits
+    2026-02-08 : 1 commits
 ```
 
 ---
@@ -88,4 +89,4 @@ Check out our [Contributing Guide](CONTRIBUTING.md) to get started!
 
 ---
 
-*Auto-generated on 2026-02-08 01:28 UTC*
+*Auto-generated on 2026-02-15 01:14 UTC*
