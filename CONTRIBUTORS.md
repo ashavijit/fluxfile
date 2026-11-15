@@ -13,7 +13,7 @@
 | # | Avatar | Contributor | Commits | Lines Added | Lines Deleted |
 |:-:|:------:|-------------|:-------:|:-----------:|:-------------:|
 | 🥇 1 | <img src="https://github.com/ashavijit.png" width="40" style="border-radius:50%"> | **[@ashavijit](https://github.com/ashavijit)** | 71 | +14489 | -2027 |
-| 🥈 2 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 52 | +0 | -0 |
+| 🥈 2 | <img src="https://github.com/github-actions[bot].png" width="40" style="border-radius:50%"> | **[@github-actions[bot]](https://github.com/github-actions[bot])** | 53 | +0 | -0 |
 | 🥉 3 | <img src="https://github.com/avijit-sen.png" width="40" style="border-radius:50%"> | **[@avijit-sen](https://github.com/avijit-sen)** | 4 | +4 | -2 |
 
 ---
@@ -27,7 +27,7 @@
 pie showData
     title Commits Distribution
     "ashavijit" : 71
-    "github-actions[bot]" : 52
+    "github-actions[bot]" : 53
     "Avijit Sen" : 4
 ```
 
@@ -39,6 +39,7 @@ pie showData
 
 | Date | Author | Commit | Message |
 |:----:|--------|:------:|---------|
+| `2026-11-08` | github-actions[bot] | [`7c25d00`](../../commit/7c25d002fde85c5208b23b069501863d599eb85f) | docs: update contributors |
 | `2026-11-01` | github-actions[bot] | [`4ca93e6`](../../commit/4ca93e6cbd970d30c2bc0c4b3afd882e6add77fb) | docs: update contributors |
 | `2026-10-25` | github-actions[bot] | [`11f88d6`](../../commit/11f88d6b6209faf9525d64256ebde5979d60a5bc) | docs: update contributors |
 | `2026-10-18` | github-actions[bot] | [`088903b`](../../commit/088903beb081f0141f8e2d9ab28dcefb9c7a1f6e) | docs: update contributors |
@@ -53,7 +54,6 @@ pie showData
 | `2026-08-16` | github-actions[bot] | [`72eb3a6`](../../commit/72eb3a6913430fac9fbe174da241cdec92ae29d7) | docs: update contributors |
 | `2026-08-09` | github-actions[bot] | [`b46d8e7`](../../commit/b46d8e720480356491b192321e31de6f71f455a4) | docs: update contributors |
 | `2026-08-02` | github-actions[bot] | [`28770ba`](../../commit/28770ba048b5378ca6e620e7f385ffc14af2628f) | docs: update contributors |
-| `2026-07-26` | github-actions[bot] | [`bb244a3`](../../commit/bb244a30306fe73e305c3431e60b2a9e5c635534) | docs: update contributors |
 ---
 
 ### Commit Timeline
@@ -62,7 +62,6 @@ pie showData
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#6366f1'}}}%%
 timeline
     title Recent Development Activity
-    2026-08-30 : 1 commits
     2026-09-06 : 1 commits
     2026-09-13 : 1 commits
     2026-09-20 : 1 commits
@@ -72,6 +71,7 @@ timeline
     2026-10-18 : 1 commits
     2026-10-25 : 1 commits
     2026-11-01 : 1 commits
+    2026-11-08 : 1 commits
 ```
 
 ---
@@ -89,4 +89,4 @@ Check out our [Contributing Guide](CONTRIBUTING.md) to get started!
 
 ---
 
-*Auto-generated on 2026-11-08 03:13 UTC*
+*Auto-generated on 2026-11-15 03:42 UTC*
